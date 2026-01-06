@@ -1,16 +1,7 @@
 "use client";
 import useGetAllMarcas from "@/hooks/marcas/useGetAllMarcas";
-import React, { useState } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -18,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -59,16 +50,10 @@ const MarcasAdminPage = () => {
     }
   };
 
-  const handleItemsPerPageChange = (value: string) => {
-    const newItemsPerPage = parseInt(value);
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-  };
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+        <main className="flex flex-1 flex-col gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 overflow-x-hidden">
           <div className="flex items-center">
             <div className="ml-auto flex items-center gap-2">
               <Button
@@ -92,15 +77,17 @@ const MarcasAdminPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
-                <TableMarcas
-                  marcas={marcas}
-                  sortField={sortField}
-                  setSortDirection={setSortDirection}
-                  setSortField={setSortField}
-                  sortDirection={sortDirection}
-                  isLoading={isLoading}
-                />
+              <div className="relative w-full overflow-x-auto">
+                <div className="rounded-md border min-w-full">
+                  <TableMarcas
+                    marcas={marcas}
+                    sortField={sortField}
+                    setSortDirection={setSortDirection}
+                    setSortField={setSortField}
+                    sortDirection={sortDirection}
+                    isLoading={isLoading}
+                  />
+                </div>
               </div>
               <div className="flex items-center justify-between space-x-2 py-4">
                 <div className="text-sm text-muted-foreground">

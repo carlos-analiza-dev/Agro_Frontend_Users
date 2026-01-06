@@ -130,10 +130,10 @@ const RolesPageAdmin = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <TitlePages title="Administración de Roles" />
 
-        <Button onClick={handleAddRol}>
+        <Button onClick={handleAddRol} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Crear Rol
         </Button>

@@ -27,9 +27,9 @@ const DescuentosClientesAdmin = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="block md:flex justify-between items-center">
           <CardTitle>Descuento de los Clientes</CardTitle>
-          <Button onClick={() => setIsOpen(true)}>
+          <Button onClick={() => setIsOpen(true)} className="w-full md:w-auto">
             <Plus />
             Agregar Descuento
           </Button>

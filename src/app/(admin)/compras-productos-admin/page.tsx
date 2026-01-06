@@ -74,10 +74,10 @@ const ComprasProductosPage = () => {
   };
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mt-5">
+      <div className="block md:flex justify-between items-center mt-5">
         <TitlePages title="Gestión de Compras - Productos" />
         <div className="flex items-center gap-4">
-          <Button onClick={() => setIsOpen(true)}>
+          <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Agregar Compra
           </Button>
         </div>

@@ -1,7 +1,7 @@
 #####################################
 # BUILD STAGE
 #####################################
-FROM node:18 AS builder
+FROM node:20 AS builder
 WORKDIR /app
 
 # Copiar archivos para instalar dependencias
@@ -30,7 +30,7 @@ RUN npm run build
 #####################################
 # RUNTIME STAGE
 #####################################
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

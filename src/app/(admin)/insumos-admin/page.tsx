@@ -96,15 +96,16 @@ const InsumosAdminPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
           <TitlePages title="Gestión de Insumos" />
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Administra los insumos y medicamentos del sistema
           </p>
         </div>
-        <Button onClick={() => setIsOopen(true)}>
+
+        <Button onClick={() => setIsOopen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Insumo
         </Button>
@@ -223,7 +224,16 @@ const InsumosAdminPage = () => {
       </Card>
 
       <AlertDialog open={isOopen} onOpenChange={setIsOopen}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          className="
+    w-[95vw]
+    max-w-lg
+    max-h-[90vh]
+    overflow-y-auto
+    p-4
+    sm:p-6
+  "
+        >
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>

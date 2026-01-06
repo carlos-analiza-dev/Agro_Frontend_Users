@@ -137,7 +137,7 @@ const FormCreateFactura = ({ onSuccess }: Props) => {
       descuentos_rebajas: 0,
       importe_exento: 0,
       importe_exonerado: 0,
-      cargos_extra: 0, // ← Nuevo campo agregado
+      cargos_extra: 0,
       descuento_id: null,
     },
   });
@@ -152,7 +152,7 @@ const FormCreateFactura = ({ onSuccess }: Props) => {
   const descuentos = watch("descuentos_rebajas") || 0;
   const importeExento = watch("importe_exento") || 0;
   const importeExonerado = watch("importe_exonerado") || 0;
-  const cargosExtra = watch("cargos_extra") || 0; // ← Nuevo campo
+  const cargosExtra = watch("cargos_extra") || 0;
 
   const actualizarExistencias = () => {
     setForceUpdate((prev) => prev + 1);
@@ -368,7 +368,6 @@ const FormCreateFactura = ({ onSuccess }: Props) => {
     );
   }, [JSON.stringify(detalles)]);
 
-  // ← Cálculo actualizado con cargos extra
   const totalGeneral = useMemo(() => {
     return (
       subTotal - descuentos + importeExento + importeExonerado + cargosExtra

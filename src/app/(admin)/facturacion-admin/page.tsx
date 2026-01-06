@@ -92,9 +92,9 @@ const FacturacionPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Facturación</h1>
-        <Button onClick={() => setIsOpen(true)}>
+        <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Generar Factura
         </Button>
@@ -294,7 +294,16 @@ const FacturacionPage = () => {
       )}
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent className="p-4 md:max-w-5xl h-full overflow-y-auto">
+        <AlertDialogContent
+          className="
+    w-[95vw]
+    max-w-lg
+    max-h-[90vh]
+    overflow-y-auto
+    p-4
+    sm:p-6
+  "
+        >
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>
@@ -304,7 +313,9 @@ const FacturacionPage = () => {
               Aquí puede generar las facturas de ventas realizadas
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <FormCreateFactura onSuccess={() => setIsOpen(false)} />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <FormCreateFactura onSuccess={() => setIsOpen(false)} />
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>

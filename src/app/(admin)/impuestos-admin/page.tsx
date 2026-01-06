@@ -42,9 +42,12 @@ const ImpuestosPaisAdmin = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="block md:flex justify-between items-center">
           <CardTitle>Impuestos del País</CardTitle>
-          <Button onClick={() => setIsOpen(true)}>
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="w-full sm:w-auto mt-1 md:mt-0"
+          >
             <Plus />
             Agregar Impuesto
           </Button>

@@ -248,7 +248,16 @@ const TableSucursales = ({ filteredSucursales, isLoading }: Props) => {
       </Table>
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          className="
+    w-[95vw]
+    max-w-lg
+    max-h-[90vh]
+    overflow-y-auto
+    p-4
+    sm:p-6
+  "
+        >
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>
@@ -262,6 +271,7 @@ const TableSucursales = ({ filteredSucursales, isLoading }: Props) => {
             onSucces={() => setIsOpen(false)}
             editSucursal={editSucursal}
             isEdit={isEdit}
+            paisId={editSucursal?.pais.id || ""}
           />
         </AlertDialogContent>
       </AlertDialog>

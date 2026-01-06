@@ -1,6 +1,5 @@
 import { CrearSucursal } from "@/apis/sucursales/accions/crear-sucursal";
 import { EditarSucursal } from "@/apis/sucursales/accions/editar-sucursal";
-
 import { CrearSucursaleInterface } from "@/apis/sucursales/interfaces/crear-sucursale.interface";
 import { Sucursal } from "@/apis/sucursales/interfaces/response-sucursales.interface";
 import { Button } from "@/components/ui/button";
@@ -20,32 +19,31 @@ import { tiposSucursal } from "@/helpers/data/tiposSucursales";
 import useGetDepartamentosByPais from "@/hooks/departamentos/useGetDepartamentosByPais";
 import useGetMunicipiosActivosByDepto from "@/hooks/municipios/useGetMunicipiosActivosByDepto";
 import useGetVeterinarios from "@/hooks/users/useGetVeterinarios";
-import { useAuthStore } from "@/providers/store/useAuthStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import usePaises from "@/hooks/paises/usePaises";
 
 interface Props {
   editSucursal?: Sucursal | null;
   isEdit?: boolean;
   onSucces: () => void;
+  paisId: string;
 }
 
-const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
+const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
-  const paisId = user?.pais.id;
-
-  const { data: departamentos } = useGetDepartamentosByPais(paisId || "");
+  const { data: paises, isLoading: cargandoPaises } = usePaises();
+  const [paisSeleccionado, setPaisSeleccionado] = React.useState(paisId);
+  const { data: departamentos, isLoading: cargandoDepartamentos } =
+    useGetDepartamentosByPais(paisSeleccionado || "");
   const { data: gerentes } = useGetVeterinarios();
-
   const [departamentoSeleccionado, setDepartamentoSeleccionado] =
     React.useState("");
-  const { data: municipios } = useGetMunicipiosActivosByDepto(
-    departamentoSeleccionado
-  );
+  const { data: municipios, isLoading: cargandoMunicipios } =
+    useGetMunicipiosActivosByDepto(departamentoSeleccionado);
 
   const {
     register,
@@ -57,11 +55,19 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
   } = useForm<CrearSucursaleInterface>();
 
   const departamentoId = watch("departamentoId");
+  const paisFormId = watch("paisId");
+
   useEffect(() => {
     if (departamentoId) {
       setDepartamentoSeleccionado(departamentoId);
     }
   }, [departamentoId]);
+
+  useEffect(() => {
+    if (paisSeleccionado) {
+      setValue("paisId", paisSeleccionado);
+    }
+  }, [paisSeleccionado, setValue]);
 
   useEffect(() => {
     if (editSucursal && isEdit) {
@@ -74,9 +80,22 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
         paisId: editSucursal.pais.id,
         gerenteId: editSucursal.gerente?.id || "",
       });
+      setPaisSeleccionado(editSucursal.pais.id);
       setDepartamentoSeleccionado(editSucursal.departamento.id);
+    } else {
+      setValue("paisId", paisId);
+      setPaisSeleccionado(paisId);
     }
-  }, [editSucursal, isEdit, reset]);
+  }, [editSucursal, isEdit, reset, setValue, paisId]);
+
+  const handlePaisChange = (value: string) => {
+    setPaisSeleccionado(value);
+    setValue("paisId", value);
+
+    setValue("departamentoId", "");
+    setValue("municipioId", "");
+    setDepartamentoSeleccionado("");
+  };
 
   const mutation = useMutation({
     mutationFn: (data: CrearSucursaleInterface) => CrearSucursal(data),
@@ -133,7 +152,7 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
   });
 
   const onSubmit = (data: CrearSucursaleInterface) => {
-    data.paisId = paisId || "";
+    data.paisId = paisSeleccionado || paisId || "";
 
     if (isEdit) {
       mutationUpdate.mutate(data);
@@ -184,21 +203,55 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
         )}
       </div>
 
-      <div className="space-y-1">
-        <Label className="font-bold">Dirección*</Label>
-        <Textarea
-          {...register("direccion_complemento", {
-            required: "El campo dirección es requerido",
-          })}
-          placeholder="Escriba la dirección completa de la sucursal"
-          rows={3}
-        />
-        {errors.direccion_complemento && (
-          <p className="text-sm font-medium text-red-500">
-            {errors.direccion_complemento.message as string}
-          </p>
-        )}
-      </div>
+      {!isEdit && (
+        <div className="space-y-1">
+          <Label className="font-bold">País*</Label>
+          <Select
+            value={paisSeleccionado}
+            onValueChange={handlePaisChange}
+            disabled={cargandoPaises}
+          >
+            <SelectTrigger>
+              {cargandoPaises ? (
+                <SelectValue placeholder="Cargando países..." />
+              ) : (
+                <SelectValue placeholder="Selecciona un país" />
+              )}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Países</SelectLabel>
+                {paises?.data.map((pais) => (
+                  <SelectItem key={pais.id} value={pais.id}>
+                    {pais.nombre}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {errors.paisId && (
+            <p className="text-sm font-medium text-red-500">
+              {errors.paisId.message as string}
+            </p>
+          )}
+        </div>
+      )}
+
+      {isEdit && editSucursal && (
+        <div className="space-y-1">
+          <Label className="font-bold">País</Label>
+          <Input
+            value={editSucursal.pais.nombre}
+            disabled
+            className="bg-gray-50"
+          />
+          <input
+            type="hidden"
+            {...register("paisId")}
+            value={editSucursal.pais.id}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1">
@@ -206,9 +259,14 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
           <Select
             onValueChange={(value) => setValue("departamentoId", value)}
             defaultValue={editSucursal?.departamento?.id}
+            disabled={!paisSeleccionado || cargandoDepartamentos}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona un departamento" />
+              {cargandoDepartamentos ? (
+                <SelectValue placeholder="Cargando..." />
+              ) : (
+                <SelectValue placeholder="Selecciona un departamento" />
+              )}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -233,16 +291,20 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
           <Select
             onValueChange={(value) => setValue("municipioId", value)}
             defaultValue={editSucursal?.municipio?.id}
-            disabled={!departamentoId}
+            disabled={!departamentoId || cargandoMunicipios}
           >
             <SelectTrigger>
-              <SelectValue
-                placeholder={
-                  departamentoId
-                    ? "Selecciona un municipio"
-                    : "Primero selecciona un departamento"
-                }
-              />
+              {cargandoMunicipios ? (
+                <SelectValue placeholder="Cargando..." />
+              ) : (
+                <SelectValue
+                  placeholder={
+                    departamentoId
+                      ? "Selecciona un municipio"
+                      : "Primero selecciona un departamento"
+                  }
+                />
+              )}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -261,6 +323,22 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit }: Props) => {
             </p>
           )}
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label className="font-bold">Dirección*</Label>
+        <Textarea
+          {...register("direccion_complemento", {
+            required: "El campo dirección es requerido",
+          })}
+          placeholder="Escriba la dirección completa de la sucursal"
+          rows={3}
+        />
+        {errors.direccion_complemento && (
+          <p className="text-sm font-medium text-red-500">
+            {errors.direccion_complemento.message as string}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1">

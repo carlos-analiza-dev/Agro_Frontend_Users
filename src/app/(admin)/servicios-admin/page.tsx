@@ -127,7 +127,7 @@ const ServiciosCategoriasAdminPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <div>
           <TitlePages title=" Administración de Categorias y Servicios" />
           <p className="text-muted-foreground">
@@ -137,7 +137,7 @@ const ServiciosCategoriasAdminPage = () => {
 
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               Agregar Categoria <Plus />
             </Button>
           </AlertDialogTrigger>

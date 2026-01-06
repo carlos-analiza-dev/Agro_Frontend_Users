@@ -46,7 +46,7 @@ const RangosFacturaPage = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <div>
           <TitlePages title="Rangos de Factura" />
           <p className="text-muted-foreground">
@@ -54,7 +54,7 @@ const RangosFacturaPage = () => {
           </p>
         </div>
         <div>
-          <Button onClick={() => setIsOpen(true)}>
+          <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
             <Plus /> Agregar
           </Button>
         </div>
@@ -130,7 +130,16 @@ const RangosFacturaPage = () => {
       )}
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          className="
+    w-[95vw]
+    max-w-lg
+    max-h-[90vh]
+    overflow-y-auto
+    p-4
+    sm:p-6
+  "
+        >
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>

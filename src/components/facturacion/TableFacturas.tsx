@@ -1,4 +1,3 @@
-import { descargarFacturaPDFConAxios } from "@/apis/facturas/accions/descargar-factura";
 import { ProcesarFactura } from "@/apis/facturas/accions/procesar-factura";
 import { VerificarExistencia } from "@/apis/facturas/accions/verificar-existencia";
 import { CancelarFactura } from "@/apis/facturas/accions/cancelar-factura";
@@ -40,15 +39,15 @@ import {
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import FormEditFactura from "./FormEditFactura";
 import { Badge } from "@/components/ui/badge";
 import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
-import { veterinariaAPI } from "@/helpers/api/veterinariaAPI";
 import { User } from "@/interfaces/auth/user";
 import { AutorizarCancelacionFactura } from "@/apis/facturas/accions/autorizar-factura";
+import { useFacturaDownload } from "@/helpers/funciones/useFacturaDownload";
 
 interface Props {
   facturas: ResponseFacturasInterface | undefined;
@@ -87,42 +86,31 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
     useState<ResponseExistenciaInterface | null>(null);
   const [isVerificacionDialogOpen, setIsVerificacionDialogOpen] =
     useState(false);
-
-  const handlePreviewFactura = async (factura: Factura) => {
-    try {
-      const url = `/facturas/${factura.id}/preview`;
-
-      const response = await veterinariaAPI.get(url, {
-        responseType: "blob",
-      });
-
-      if (!response.data) {
-        throw new Error("No se pudo obtener la vista previa de la factura.");
-      }
-
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const objectUrl = URL.createObjectURL(blob);
-
-      setFacturaPreview(objectUrl);
-    } catch (error) {
-      toast.error("Error al obtener la vista previa de la factura");
-    }
-  };
+  const { descargarFactura, verFactura, loading } = useFacturaDownload();
 
   const handleDescargarFactura = async (factura: Factura) => {
     setDescargandoId(factura.id);
     try {
-      const result = await descargarFacturaPDFConAxios(factura.id, factura);
+      const result = await descargarFactura(factura.id, factura.numero_factura);
 
       if (result.success) {
         toast.success("Factura descargada exitosamente");
       } else {
-        toast.error(result.message);
+        toast.error(result.error || "Error al descargar la factura");
       }
     } catch (error) {
       toast.error("Error inesperado al descargar la factura");
     } finally {
       setDescargandoId(null);
+    }
+  };
+
+  const handlePreviewFactura = async (factura: Factura) => {
+    try {
+      const objectUrl = await verFactura(factura.id, factura.numero_factura);
+      setFacturaPreview(objectUrl);
+    } catch (error) {
+      toast.error("Error al obtener la vista previa de la factura");
     }
   };
 

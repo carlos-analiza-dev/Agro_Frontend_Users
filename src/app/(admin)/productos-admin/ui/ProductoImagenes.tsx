@@ -175,6 +175,7 @@ const ProductoImagenes = ({ imagenes, productoId, onUploadSuccess }: Props) => {
                         <Image
                           src={imagen.url || "/placeholder.png"}
                           alt={`Imagen del producto ${index + 1}`}
+                          unoptimized
                           width={CONTAINER_SIZE.width}
                           height={CONTAINER_SIZE.height}
                           className="object-cover rounded-md"
@@ -253,6 +254,7 @@ const ProductoImagenes = ({ imagenes, productoId, onUploadSuccess }: Props) => {
                 <Image
                   src={preview}
                   alt="Vista previa"
+                  unoptimized
                   width={120}
                   height={120}
                   className="rounded-md border object-cover"

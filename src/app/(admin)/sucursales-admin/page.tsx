@@ -34,6 +34,7 @@ import {
 import LoaderComponents from "@/components/generics/LoaderComponents";
 import dynamic from "next/dynamic";
 import TableUsersSkeleton from "@/components/generics/SkeletonTable";
+import usePaises from "@/hooks/paises/usePaises";
 
 const FormSucursal = dynamic(() => import("./ui/FormSucursal"), {
   loading: () => <LoaderComponents />,
@@ -45,7 +46,12 @@ const TableSucursales = dynamic(() => import("./ui/TableSucursales"), {
 
 const SucursalesAdminPage = () => {
   const { user } = useAuthStore();
-  const paisId = user?.pais.id;
+  const { data: paises, isLoading: cargando_paises } = usePaises();
+
+  const [paisSeleccionado, setPaisSeleccionado] = useState<string>(
+    user?.pais.id || ""
+  );
+
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [departamentoId, setDepartamentoId] = useState<string>("all");
@@ -59,16 +65,23 @@ const SucursalesAdminPage = () => {
   const { data: sucursales, isLoading } = useGetSucursales(
     limit,
     offset,
-    paisId,
+    paisSeleccionado,
     departament,
     municipio
   );
 
-  const { data: departamentos } = useGetDepartamentosByPais(paisId || "");
+  const { data: departamentos } = useGetDepartamentosByPais(paisSeleccionado);
 
   const { data: municipios } = useGetMunicipiosActivosByDepto(departament);
 
   const totalPages = Math.ceil((sucursales?.total || 0) / limit);
+
+  const handlePaisChange = (value: string) => {
+    setPaisSeleccionado(value);
+    setDepartamentoId("all");
+    setMunicipioId("all");
+    setPage(1);
+  };
 
   const handleDepartamentoChange = (value: string) => {
     setDepartamentoId(value);
@@ -86,6 +99,7 @@ const SucursalesAdminPage = () => {
   };
 
   const clearFilters = () => {
+    setPaisSeleccionado(user?.pais.id || "");
     setDepartamentoId("all");
     setMunicipioId("all");
     setPage(1);
@@ -93,12 +107,12 @@ const SucursalesAdminPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="block md:flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Building className="h-8 w-8" />
           <TitlePages title="Gestión de Sucursales" />
         </div>
-        <Button onClick={() => setIsOpen(true)}>
+        <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Sucursal
         </Button>
@@ -114,7 +128,9 @@ const SucursalesAdminPage = () => {
               </CardDescription>
             </div>
 
-            {(departamentoId || municipioId) && (
+            {(departamentoId !== "all" ||
+              municipioId !== "all" ||
+              paisSeleccionado !== (user?.pais.id || "")) && (
               <Button
                 variant="outline"
                 size="sm"
@@ -130,10 +146,35 @@ const SucursalesAdminPage = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
+              <label className="text-sm font-medium">País</label>
+              <Select
+                value={paisSeleccionado}
+                onValueChange={handlePaisChange}
+                disabled={cargando_paises}
+              >
+                <SelectTrigger>
+                  {cargando_paises ? (
+                    <SelectValue placeholder="Cargando..." />
+                  ) : (
+                    <SelectValue placeholder="Seleccionar país" />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {paises?.data.map((pais) => (
+                    <SelectItem key={pais.id} value={pais.id}>
+                      {pais.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium">Departamento</label>
               <Select
                 value={departamentoId}
                 onValueChange={handleDepartamentoChange}
+                disabled={!paisSeleccionado || cargando_paises}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
@@ -154,7 +195,11 @@ const SucursalesAdminPage = () => {
               <Select
                 value={municipioId}
                 onValueChange={handleMunicipioChange}
-                disabled={!departamentoId || departamentoId === "all"}
+                disabled={
+                  !departamentoId ||
+                  departamentoId === "all" ||
+                  !paisSeleccionado
+                }
               >
                 <SelectTrigger>
                   <SelectValue
@@ -201,17 +246,30 @@ const SucursalesAdminPage = () => {
       </Card>
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent
+          className="
+    w-[95vw]
+    max-w-lg
+    max-h-[90vh]
+    overflow-y-auto
+    p-4
+    sm:p-6
+  "
+        >
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>
           <AlertDialogHeader>
             <AlertDialogTitle>Agregar Sucursal</AlertDialogTitle>
             <AlertDialogDescription>
-              En esta seccion podras agrear nuevas sucursales
+              En esta sección podrás agregar nuevas sucursales
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <FormSucursal onSucces={() => setIsOpen(false)} />
+
+          <FormSucursal
+            onSucces={() => setIsOpen(false)}
+            paisId={paisSeleccionado}
+          />
         </AlertDialogContent>
       </AlertDialog>
     </div>

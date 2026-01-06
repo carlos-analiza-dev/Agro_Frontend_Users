@@ -50,11 +50,11 @@ const ProveedoresAdmin = () => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="block md:flex items-center justify-between mb-6">
         <TitlePages title="Gestión de Proveedores" />
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialogTrigger asChild>
-            <Button>Nuevo Proveedor</Button>
+            <Button className="w-full sm:w-auto">Nuevo Proveedor</Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="h-[600px] overflow-y-auto">
             <div className="flex justify-end">

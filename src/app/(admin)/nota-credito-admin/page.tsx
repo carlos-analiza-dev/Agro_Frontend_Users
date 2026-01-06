@@ -62,14 +62,14 @@ const NotaCreditoPage = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <div>
           <TitlePages title="Notas de Crédito" />
           <p className="text-muted-foreground">
             Gestión y visualización de notas de crédito emitidas
           </p>
         </div>
-        <Button onClick={() => setIsOpen(true)}>
+        <Button onClick={() => setIsOpen(true)} className="w-full sm:w-auto">
           <Plus /> Agregar Nota
         </Button>
       </div>

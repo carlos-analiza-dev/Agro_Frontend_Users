@@ -104,14 +104,17 @@ const PageProductosAdmin = () => {
   }
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center gap-3">
         <div>
           <TitlePages title="Administración de Productos" />
           <p className="text-muted-foreground">
             Gestione los productos del inventario
           </p>
         </div>
-        <Button onClick={() => setIsOpenSubServicio(true)}>
+        <Button
+          onClick={() => setIsOpenSubServicio(true)}
+          className="w-full sm:w-auto"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Producto
         </Button>

@@ -381,7 +381,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  Productos de la Compra
+                  Insumos de la Compra
                 </h2>
 
                 {proveedorSeleccionado && proveedorSeleccionado.tipo_escala && (
@@ -392,7 +392,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
                       <span className="font-bold uppercase">
                         {proveedorSeleccionado.tipo_escala}
                       </span>{" "}
-                      de productos
+                      de insumos
                     </span>
                   </div>
                 )}

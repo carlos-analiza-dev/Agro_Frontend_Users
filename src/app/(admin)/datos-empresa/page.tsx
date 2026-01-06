@@ -145,10 +145,13 @@ const DatosEmpresaPage = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="block md:flex justify-between items-center">
         <h1 className="text-3xl font-bold">Datos de la Empresa</h1>
         {!isEditing ? (
-          <Button onClick={() => setIsEditing(true)} className="gap-2">
+          <Button
+            onClick={() => setIsEditing(true)}
+            className="gap-2 w-full sm:w-auto"
+          >
             <Pencil className="h-4 w-4" />
             {!datos_empresa?.id ? "Crear Datos" : "Editar Datos"}
           </Button>

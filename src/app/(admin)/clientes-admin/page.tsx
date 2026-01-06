@@ -70,12 +70,17 @@ const ClientesAdminPage = () => {
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-4">
-        <div className="flex justify-between">
+        <div className="block md:flex justify-between">
           <TitlePages title="Administración de Clientes" />
 
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-              <Button onClick={() => setOpen(true)}>Agregar +</Button>
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => setOpen(true)}
+              >
+                Agregar +
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="w-full md:max-w-3xl h-[600px] overflow-y-auto">
               <div className="flex justify-end">

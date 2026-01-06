@@ -17,14 +17,13 @@ import useGetMunicipiosByDepto from "@/hooks/municipios/useGetMunicipiosByDepto"
 import useGetPaisesActivos from "@/hooks/paises/useGetPaisesActivos";
 import usePaisesById from "@/hooks/paises/usePaisesById";
 import useGetRoles from "@/hooks/roles/useGetRoles";
-import useGetSucursales from "@/hooks/sucursales/useGetSucursales";
 import useGetSucursalesPais from "@/hooks/sucursales/useGetSucursalesPais";
 import userById from "@/hooks/users/userById";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Eye, EyeOff } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -62,7 +61,7 @@ const FormUsers = ({ userId, onSuccess }: Props) => {
         sexo: user.data.sexo,
         departamento: user.data.departamento.id,
         municipio: user.data.municipio.id,
-        sucursal: user.data.sucursal.id,
+        sucursal: user.data.sucursal?.id || "",
       });
 
       setCodigoPais(user.data.pais.code);
@@ -417,7 +416,7 @@ const FormUsers = ({ userId, onSuccess }: Props) => {
         <div className="space-y-2">
           <Label htmlFor="sucursal">Sucursal</Label>
           <Select
-            value={watch("sucursal")}
+            value={watch("sucursal") || user?.data.sucursal.id}
             onValueChange={(value) => {
               setValue("sucursal", value);
             }}
