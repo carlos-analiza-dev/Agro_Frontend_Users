@@ -12,23 +12,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import { useState } from "react";
 import FormAddPrecios from "./FormAddPrecios";
-import usePaises from "@/hooks/paises/usePaises";
-import { PaisOption } from "@/apis/servicios_precios/interfaces/crear-servicio-precio.interface";
 
 interface Props {
   subServicio: SubServicio;
 }
 
 const DetallesPais = ({ subServicio }: Props) => {
-  const { data: paisesData, isLoading: isLoadingPaises } = usePaises();
-  const paises: PaisOption[] =
-    paisesData?.data.map((pais) => ({
-      value: pais.id,
-      label: pais.nombre,
-      simbolo_moneda: pais.simbolo_moneda,
-    })) || [];
   const [isOpenPrecios, setIsOpenPrecios] = useState(false);
   const [isEditPrecio, setIsEditPrecio] = useState(false);
   const [editPrecio, setEditPrecio] = useState<PreciosPorPai | null>(null);
@@ -37,6 +28,11 @@ const DetallesPais = ({ subServicio }: Props) => {
     setIsEditPrecio(true);
     setIsOpenPrecios(true);
     setEditPrecio(precio);
+  };
+
+  const handleAddPrecio = () => {
+    setIsEditPrecio(false);
+    setIsOpenPrecios(true);
   };
 
   return (
@@ -79,10 +75,20 @@ const DetallesPais = ({ subServicio }: Props) => {
       </div>
 
       {subServicio.preciosPorPais.length === 0 && (
-        <div className="flex justify-center py-6">
-          <span className="text-sm text-muted-foreground">
-            Sin precios configurados
-          </span>
+        <div className="flex justify-center">
+          <div className="block w-full sm:w-3/5 justify-center py-6">
+            <span className="text-sm font-bold flex justify-center">
+              Sin paquetes configurados
+            </span>
+            <Button
+              onClick={() => handleAddPrecio()}
+              variant={"outline"}
+              size={"sm"}
+              className="w-full xs:w-auto"
+            >
+              Agregar Paquete
+            </Button>
+          </div>
         </div>
       )}
 

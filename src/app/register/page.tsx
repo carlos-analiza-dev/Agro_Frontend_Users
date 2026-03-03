@@ -1,5 +1,6 @@
 "use client";
 
+import { FullScreenLoader } from "@/components/generics/FullScreenLoader";
 import FormRegister from "@/components/Login/FormRegister";
 import {
   Card,
@@ -8,10 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuthRedirect } from "@/helpers/funciones/useAuthRedirect";
 
 import Image from "next/image";
 
 export default function RegisterPage() {
+  const { isChecking } = useAuthRedirect();
+
+  if (isChecking) {
+    return <FullScreenLoader />;
+  }
   return (
     <div className="relative min-h-screen">
       <div className="absolute inset-0 z-0">

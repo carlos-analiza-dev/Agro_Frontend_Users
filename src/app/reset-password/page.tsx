@@ -1,5 +1,6 @@
 "use client";
 import { CambiarContraseña } from "@/apis/users/accions/update-password";
+import { FullScreenLoader } from "@/components/generics/FullScreenLoader";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthRedirect } from "@/helpers/funciones/useAuthRedirect";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
@@ -34,6 +36,7 @@ const ResetPasswordPage = () => {
     watch,
     reset,
   } = useForm<FormData>();
+  const { isChecking } = useAuthRedirect();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -49,7 +52,7 @@ const ResetPasswordPage = () => {
     },
     onError: (error: any) => {
       toast.error(
-        error.response?.data?.message || "Error al cambiar la contraseña"
+        error.response?.data?.message || "Error al cambiar la contraseña",
       );
     },
   });
@@ -63,6 +66,10 @@ const ResetPasswordPage = () => {
     const re = /\S+@\S+\.\S+/;
     return re.test(email) || "Por favor ingresa un correo válido";
   };
+
+  if (isChecking) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <div className="relative min-h-screen">

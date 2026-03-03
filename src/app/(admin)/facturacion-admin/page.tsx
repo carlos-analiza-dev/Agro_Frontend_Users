@@ -294,16 +294,7 @@ const FacturacionPage = () => {
       )}
 
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent
-          className="
-    w-[95vw]
-    max-w-lg
-    max-h-[90vh]
-    overflow-y-auto
-    p-4
-    sm:p-6
-  "
-        >
+        <AlertDialogContent className="p-4 md:max-w-5xl h-full overflow-y-auto">
           <div className="flex justify-end">
             <AlertDialogCancel>X</AlertDialogCancel>
           </div>

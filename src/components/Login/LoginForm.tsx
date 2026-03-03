@@ -40,13 +40,13 @@ const LoginForm = () => {
 
         switch (user.role.name) {
           case "Administrador":
-            router.push("/dashboard-admin");
+            router.replace("/dashboard-admin");
             break;
           case "Secretario":
-            router.push("/secretary/dashboard");
+            router.replace("/secretary/dashboard");
             break;
           case "Veterinario":
-            router.push("/citas-veterinario");
+            router.replace("/citas-veterinario");
             break;
           default:
             toast.error("No tienes permisos para acceder a esta aplicación.");
@@ -57,7 +57,7 @@ const LoginForm = () => {
       }
 
       toast.error(
-        "Usuario o contraseña incorrectos. Contacte al administrador."
+        "Usuario o contraseña incorrectos. Contacte al administrador.",
       );
     } catch (error) {
       toast.error("Ocurrió un error durante el inicio de sesión");

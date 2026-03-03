@@ -32,7 +32,7 @@ const VerifyAccountPage = () => {
         setStatus("success");
         setMessage(
           response.message ||
-            "¡Cuenta verificada exitosamente! Ya puedes iniciar sesión."
+            "¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.",
         );
 
         setTimeout(() => {
