@@ -6,7 +6,7 @@ const useGetMedicoById = (id: string) => {
     queryKey: ["medico-id", id],
     queryFn: () => ObtenerMedicoById(id),
     retry: 0,
-    staleTime: 60 * 5 * 100,
+    staleTime: 60 * 5 * 1000,
   });
 };
 

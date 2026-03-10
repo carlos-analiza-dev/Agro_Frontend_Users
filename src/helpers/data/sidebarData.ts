@@ -35,6 +35,7 @@ import {
   NotepadTextIcon,
   User,
   UserCheck,
+  Scale,
 } from "lucide-react";
 
 export const navItems = [
@@ -85,6 +86,11 @@ export const navItems = [
         name: "Veterinarios",
         href: "/veterinarios-admin",
         icon: BriefcaseMedical,
+      },
+      {
+        name: "Pesos Promedio",
+        href: "/pesos-promedio",
+        icon: Scale,
       },
       { name: "Roles", href: "/roles-admin", icon: UserCog },
     ],
