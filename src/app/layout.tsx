@@ -12,9 +12,22 @@ const poppins = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "El Sembrador",
+  title: {
+    default: "El Sembrador | Agroservicios y Veterinaria",
+    template: "%s | El Sembrador",
+  },
   description:
-    "En este sitio se te brindara una diversidad de agroservicios para tu mejora continua.",
+    "Sistema de agroservicios y veterinaria para control de ganado, productos agropecuarios, razas, pesos promedio y gestión agrícola.",
+  keywords: [
+    "agroservicios",
+    "veterinaria",
+    "ganado",
+    "razas bovinas",
+    "peso promedio ganado",
+    "agricultura",
+    "agro veterinaria",
+  ],
+  authors: [{ name: "Carlos Alcerro" }],
 };
 
 export default function RootLayout({
