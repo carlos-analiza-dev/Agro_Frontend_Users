@@ -12,4 +12,5 @@ export interface CrearCitaInterface {
   totalPagar: number;
   totalFinal?: number;
   estado?: string;
+  motivoCancelacion?: string;
 }

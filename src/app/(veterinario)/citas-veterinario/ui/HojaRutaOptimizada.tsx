@@ -12,7 +12,6 @@ import {
   ExternalLinkIcon,
 } from "lucide-react";
 import { Cita } from "@/apis/citas/interfaces/response-citas-confirm.interface";
-import { formatDate } from "@/helpers/funciones/formatDate";
 import { obtenerTiempoViajeGoogleMaps } from "@/apis/google-maps/accions/obtenerTiempoViajeGoogleMaps";
 import GoogleMapViewer from "@/components/generics/GoogleMapViewer";
 
@@ -35,6 +34,29 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
   const [citasOrdenadas, setCitasOrdenadas] = useState<CitaConDistancia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const formatDate = (date: any): string => {
+    if (!date) return "N/A";
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+
+    if (typeof date === "string") {
+      const [year, month, day] = date.split("-").map(Number);
+      const dateObj = new Date(year, month - 1, day);
+
+      return dateObj.toLocaleDateString("es-ES", options);
+    }
+
+    if (date instanceof Date) {
+      return date.toLocaleDateString("es-ES", options);
+    }
+
+    return "N/A";
+  };
 
   useEffect(() => {
     const obtenerUbicacionYOrdenar = async () => {
@@ -59,7 +81,7 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
                     position.coords.latitude,
                     position.coords.longitude,
                     cita.finca.latitud,
-                    cita.finca.longitud
+                    cita.finca.longitud,
                   );
 
                   return {
@@ -69,11 +91,11 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
                       : Infinity,
                     tiempoViaje: resultado?.tiempoTexto || "No calculado",
                   };
-                })
+                }),
               );
 
               const ordenadas = [...citasConDistancias].sort(
-                (a, b) => (a.distancia || Infinity) - (b.distancia || Infinity)
+                (a, b) => (a.distancia || Infinity) - (b.distancia || Infinity),
               );
               setCitasOrdenadas(ordenadas);
             } catch (err) {
@@ -86,7 +108,7 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
             setError("Permiso de ubicación denegado");
             setLoading(false);
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
         );
       } catch (err) {
         setError("Error al obtener la ubicación");
@@ -155,7 +177,7 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
   }
 
   const citasConUbicacion = citasOrdenadas.filter(
-    (cita) => cita.finca.latitud && cita.finca.longitud
+    (cita) => cita.finca.latitud && cita.finca.longitud,
   );
 
   return (
@@ -290,13 +312,13 @@ const HojaRutaOptimizada: React.FC<HojaRutaOptimizadaProps> = ({
                             <p>
                               Lat:{" "}
                               {parseFloat(
-                                cita.finca.latitud.toString()
+                                cita.finca.latitud.toString(),
                               ).toFixed(6)}
                             </p>
                             <p>
                               Lng:{" "}
                               {parseFloat(
-                                cita.finca.longitud.toString()
+                                cita.finca.longitud.toString(),
                               ).toFixed(6)}
                             </p>
                           </div>

@@ -1,34 +1,22 @@
 "use client";
-
-import { formatDate } from "@/helpers/funciones/formatDate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   CalendarIcon,
   ClockIcon,
-  MapPinIcon,
   NavigationIcon,
-  PhoneIcon,
-  UserIcon,
-  BuildingIcon,
-  PawPrintIcon,
   Trash2Icon,
   CarIcon,
   BriefcaseMedical,
   PlusIcon,
   MinusIcon,
-  PackageIcon,
-  SyringeIcon,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Producto } from "@/apis/productos/interfaces/response-productos.interface";
 import { useAuthStore } from "@/providers/store/useAuthStore";
-import {
-  Cita,
-  Finca,
-} from "@/apis/medicos/interfaces/obtener-citas-medicos.interface";
+import { Cita } from "@/apis/medicos/interfaces/obtener-citas-medicos.interface";
 import { toast } from "react-toastify";
 import { obtenerTiempoViajeGoogleMaps } from "@/apis/google-maps/accions/obtenerTiempoViajeGoogleMaps";
 import GoogleMapViewer from "@/components/generics/GoogleMapViewer";
@@ -56,7 +44,7 @@ interface Props {
   onUpdateQuantity?: (
     productId: string,
     quantity: number,
-    type: "insumo" | "producto"
+    type: "insumo" | "producto",
   ) => void;
   existenciaInsumos?: ResponseExistenciaInsumosInterface[];
   existenciaProductos?: ResponseExistenciaProductosInterface[];
@@ -82,6 +70,29 @@ const CardCitasMedico = ({
   const [travelTime, setTravelTime] = useState<string | null>(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
 
+  const formatDate = (date: any): string => {
+    if (!date) return "N/A";
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+
+    if (typeof date === "string") {
+      const [year, month, day] = date.split("-").map(Number);
+      const dateObj = new Date(year, month - 1, day);
+
+      return dateObj.toLocaleDateString("es-ES", options);
+    }
+
+    if (date instanceof Date) {
+      return date.toLocaleDateString("es-ES", options);
+    }
+
+    return "N/A";
+  };
+
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
@@ -98,7 +109,7 @@ const CardCitasMedico = ({
                   position.coords.latitude,
                   position.coords.longitude,
                   item.finca.latitud,
-                  item.finca.longitud
+                  item.finca.longitud,
                 );
 
                 if (
@@ -111,7 +122,7 @@ const CardCitasMedico = ({
                 }
               } catch (error) {
                 toast.error(
-                  "Ocurrio un error al momento de calcular la distacia"
+                  "Ocurrio un error al momento de calcular la distacia",
                 );
               }
             }
@@ -121,7 +132,7 @@ const CardCitasMedico = ({
             toast.error("Ocurrio un error al obtener la ubicacion");
             setLoadingLocation(false);
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true, timeout: 10000 },
         );
       } catch (error) {
         setLoadingLocation(false);
@@ -133,14 +144,14 @@ const CardCitasMedico = ({
 
   const getExistenciaInsumo = (insumoId: string): number => {
     const existencia = existenciaInsumos.find(
-      (item: any) => item.insumoId === insumoId
+      (item: any) => item.insumoId === insumoId,
     );
     return Number(existencia?.existenciaTotal) || 0;
   };
 
   const getExistenciaProducto = (productoId: string): number => {
     const existencia = existenciaProductos.find(
-      (item: any) => item.productoId === productoId
+      (item: any) => item.productoId === productoId,
     );
     return Number(existencia?.existenciaTotal) || 0;
   };
@@ -152,7 +163,7 @@ const CardCitasMedico = ({
   const handleQuantityChange = (
     id: string,
     newQuantity: number,
-    type: "insumo" | "producto"
+    type: "insumo" | "producto",
   ) => {
     if (newQuantity < 1) return;
 
@@ -192,13 +203,13 @@ const CardCitasMedico = ({
   const totalInsumosUsados =
     item.insumosUsados?.reduce(
       (total, insumo) => total + (insumo.subtotal || 0),
-      0
+      0,
     ) || 0;
 
   const totalProductosUsados =
     item.productosUsados?.reduce(
       (total, producto) => total + (producto.subtotal || 0),
-      0
+      0,
     ) || 0;
 
   return (
@@ -403,7 +414,7 @@ const CardCitasMedico = ({
                                 handleQuantityChange(
                                   producto.id,
                                   quantity - 1,
-                                  "producto"
+                                  "producto",
                                 )
                               }
                               disabled={quantity <= 1}
@@ -423,7 +434,7 @@ const CardCitasMedico = ({
                                 handleQuantityChange(
                                   producto.id,
                                   quantity + 1,
-                                  "producto"
+                                  "producto",
                                 )
                               }
                               disabled={quantity >= existenciaReal}
@@ -453,7 +464,7 @@ const CardCitasMedico = ({
                         </div>
                       </div>
                     );
-                  }
+                  },
                 )}
               </div>
             )}
@@ -492,7 +503,7 @@ const CardCitasMedico = ({
                               handleQuantityChange(
                                 insumo.id,
                                 quantity - 1,
-                                "insumo"
+                                "insumo",
                               )
                             }
                             disabled={quantity <= 1}
@@ -512,7 +523,7 @@ const CardCitasMedico = ({
                               handleQuantityChange(
                                 insumo.id,
                                 quantity + 1,
-                                "insumo"
+                                "insumo",
                               )
                             }
                             disabled={quantity >= existenciaReal}

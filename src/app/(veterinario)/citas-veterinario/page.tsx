@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapIcon, RefreshCwIcon, AlertCircleIcon } from "lucide-react";
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import HojaRutaOptimizada from "./ui/HojaRutaOptimizada";
 import CardCitasMedico from "@/components/generics/CardCitasMedicos";
 import useGetCitasPendientesByMedico from "@/hooks/citas/useGetCitasPendientesByMedico";
+import ModalMotivoCancelacion from "@/components/generics/ModalMotivoCancelacion";
 
 const CitasPendientesVeterinario = () => {
   const { user } = useAuthStore();
@@ -22,11 +23,16 @@ const CitasPendientesVeterinario = () => {
   const limit = 10;
   const [mostrarHojaRuta, setMostrarHojaRuta] = useState(false);
 
+  const [citaCancelar, setCitaCancelar] = useState<{
+    id: string;
+    codigo: string;
+  } | null>(null);
+  const [motivoCancelacion, setMotivoCancelacion] = useState("");
+
   const {
     data: citas,
     isLoading,
     refetch,
-    isRefetching,
     fetchNextPage,
     isError,
     hasNextPage,
@@ -44,8 +50,15 @@ const CitasPendientesVeterinario = () => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const updateCitaMutation = useMutation({
-    mutationFn: ({ id, estado }: { id: string; estado: string }) =>
-      ActualizarCita(id, { estado }),
+    mutationFn: ({
+      id,
+      estado,
+      motivoCancelacion,
+    }: {
+      id: string;
+      estado: string;
+      motivoCancelacion?: string;
+    }) => ActualizarCita(id, { estado, motivoCancelacion }),
     onSuccess: async () => {
       toast.success("Cita actualizada exitosamente");
 
@@ -57,7 +70,7 @@ const CitasPendientesVeterinario = () => {
           () => ({
             pages: [],
             pageParams: [],
-          })
+          }),
         );
       }
 
@@ -65,6 +78,9 @@ const CitasPendientesVeterinario = () => {
         queryKey: ["citas-pendientes-medico", userId, limit],
       });
       await refetch();
+
+      setCitaCancelar(null);
+      setMotivoCancelacion("");
     },
     onError: (error) => {
       if (isAxiosError(error)) {
@@ -84,16 +100,25 @@ const CitasPendientesVeterinario = () => {
 
   const handleConfirmCita = (id: string) => {
     updateCitaMutation.mutate({ id, estado: EstadoCita.CONFIRMADA });
-    queryClient.invalidateQueries({
-      queryKey: ["citas-pendientes-medico", userId, limit],
-    });
   };
 
-  const handleCancelCita = (id: string) => {
-    updateCitaMutation.mutate({ id, estado: EstadoCita.CANCELADA });
-    queryClient.invalidateQueries({
-      queryKey: ["citas-pendientes-medico", userId, limit],
-    });
+  const handleOpenCancelModal = (id: string, codigo: string) => {
+    setCitaCancelar({ id, codigo });
+  };
+
+  const handleConfirmCancel = (motivo: string) => {
+    if (citaCancelar) {
+      updateCitaMutation.mutate({
+        id: citaCancelar.id,
+        estado: EstadoCita.CANCELADA,
+        motivoCancelacion: motivo,
+      });
+    }
+  };
+
+  const handleCloseCancelModal = () => {
+    setCitaCancelar(null);
+    setMotivoCancelacion("");
   };
 
   if (isLoading || updateCitaMutation.isPending) {
@@ -132,6 +157,14 @@ const CitasPendientesVeterinario = () => {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
+      <ModalMotivoCancelacion
+        isOpen={!!citaCancelar}
+        onClose={handleCloseCancelModal}
+        onConfirm={handleConfirmCancel}
+        isLoading={updateCitaMutation.isPending}
+        citaCodigo={citaCancelar?.codigo}
+      />
+
       {allCitas && allCitas.length > 0 && (
         <Button
           className="mb-4 md:mb-6 lg:mx-auto lg:max-w-2xl w-full"
@@ -150,7 +183,7 @@ const CitasPendientesVeterinario = () => {
                 <CardCitasMedico
                   item={item}
                   onConfirm={() => handleConfirmCita(item.id)}
-                  onCancel={() => handleCancelCita(item.id)}
+                  onCancel={() => handleOpenCancelModal(item.id, item.codigo)}
                 />
               </CardContent>
             </Card>

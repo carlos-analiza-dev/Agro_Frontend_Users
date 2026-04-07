@@ -71,13 +71,13 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isAutorizarDialogOpen, setIsAutorizarDialogOpen] = useState(false);
   const [facturaAProcesar, setFacturaAProcesar] = useState<Factura | null>(
-    null
+    null,
   );
   const [facturaACancelar, setFacturaACancelar] = useState<Factura | null>(
-    null
+    null,
   );
   const [facturaAAutorizar, setFacturaAAutorizar] = useState<Factura | null>(
-    null
+    null,
   );
   const [verificandoExistencia, setVerificandoExistencia] = useState<
     string | null
@@ -580,7 +580,7 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
                   {facturaAAutorizar &&
                     formatCurrency(
                       facturaAAutorizar.total,
-                      facturaAAutorizar.pais.simbolo_moneda
+                      facturaAAutorizar.pais.simbolo_moneda,
                     )}
                 </p>
                 <p>
@@ -638,7 +638,7 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
                   {facturaAProcesar &&
                     formatCurrency(
                       facturaAProcesar.total,
-                      facturaAProcesar.pais.simbolo_moneda
+                      facturaAProcesar.pais.simbolo_moneda,
                     )}
                 </p>
               </div>
@@ -692,7 +692,7 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
                   {facturaACancelar &&
                     formatCurrency(
                       facturaACancelar.total,
-                      facturaACancelar.pais.simbolo_moneda
+                      facturaACancelar.pais.simbolo_moneda,
                     )}
                 </p>
               </div>
