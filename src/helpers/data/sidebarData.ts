@@ -36,6 +36,7 @@ import {
   User,
   UserCheck,
   Scale,
+  PawPrint,
 } from "lucide-react";
 
 export const navItems = [
@@ -86,6 +87,11 @@ export const navItems = [
         name: "Veterinarios",
         href: "/veterinarios-admin",
         icon: BriefcaseMedical,
+      },
+      {
+        name: "Especies",
+        href: "/especies",
+        icon: PawPrint,
       },
       {
         name: "Pesos Promedio",
