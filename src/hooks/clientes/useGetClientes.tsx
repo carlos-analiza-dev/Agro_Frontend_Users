@@ -4,17 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 const useGetClientesPagination = (
   debouncedSearchTerm: string,
   paisFilter: string,
+  rol: string,
   limit: number,
-  page: number
+  page: number,
 ) => {
   return useQuery({
-    queryKey: ["clientes-admin", debouncedSearchTerm, paisFilter, page],
+    queryKey: ["clientes-admin", debouncedSearchTerm, paisFilter, rol, page],
     queryFn: () =>
       obtenerClientes(
         limit,
         (page - 1) * limit,
         debouncedSearchTerm,
-        paisFilter
+        paisFilter,
+        rol,
       ),
     retry: 0,
   });

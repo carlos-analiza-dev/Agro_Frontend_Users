@@ -43,7 +43,8 @@ const RazasModal = ({ especieId, open, onOpenChange }: Props) => {
         description="Gestiona las razas asociadas"
         open={open}
         onOpenChange={onOpenChange}
-        size="lg"
+        size="2xl"
+        height="auto"
       >
         <div className="space-y-4">
           <div className="flex justify-between items-center">

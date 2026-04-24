@@ -26,21 +26,25 @@ import useGetClientesPagination from "@/hooks/clientes/useGetClientes";
 import TableClientes from "./ui/TableClientes";
 import FormClientes from "./ui/FormClientes";
 import PaginacionUsers from "@/components/users/PaginacionUsers";
+import { rolTrabajadorOptions } from "@/helpers/data/rolClientes";
 
 const ClientesAdminPage = () => {
   const limit = 10;
   const [searchTerm, setSearchTerm] = useState("");
   const [paisFilter, setPaisFilter] = useState("");
+  const [rolClientes, setRolClientes] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [open, setOpen] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const filterPais = paisFilter === "all" ? "" : paisFilter;
+  const filterRoles = rolClientes === "all" ? "" : rolClientes;
 
   const { data, isLoading } = useGetClientesPagination(
     debouncedSearchTerm,
     filterPais,
+    filterRoles,
     limit,
-    currentPage
+    currentPage,
   );
 
   const { data: paises } = usePaises();
@@ -136,6 +140,30 @@ const ClientesAdminPage = () => {
                 ))
               ) : (
                 <p>No hay paises disponibles</p>
+              )}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={rolClientes}
+            onValueChange={(value) => {
+              setRolClientes(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por rol" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {rolTrabajadorOptions && rolTrabajadorOptions.length > 0 ? (
+                rolTrabajadorOptions.map((rol) => (
+                  <SelectItem key={rol.value} value={rol.value}>
+                    {rol.label}
+                  </SelectItem>
+                ))
+              ) : (
+                <p>No hay roles disponibles</p>
               )}
             </SelectContent>
           </Select>

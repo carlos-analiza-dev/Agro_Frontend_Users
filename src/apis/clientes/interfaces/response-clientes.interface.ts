@@ -1,3 +1,5 @@
+import { TipoCliente } from "@/interfaces/enums/clientes.enums";
+
 export interface ResponseClientesInterface {
   clientes: Cliente[];
   total: number;
@@ -9,6 +11,7 @@ export interface Cliente {
   identificacion: string;
   telefono: string;
   email: string;
+  rol: TipoCliente;
   direccion: string;
   sexo: string;
   isActive: boolean;

@@ -10,6 +10,7 @@ import { createRaza } from "@/apis/razas/accions/crear-raza";
 import { updateRaza } from "@/apis/razas/accions/actualizar-raza";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { isAxiosError } from "axios";
 
 interface Props {
   open: boolean;
@@ -51,12 +52,19 @@ const RazaFormModal = ({ open, onOpenChange, especieId, raza }: Props) => {
       setIsSubmitting(true);
 
       if (isEdit) {
-        await updateRaza(raza.id, formData);
+        await updateRaza(raza.id, {
+          ...formData,
+          abreviatura: formData.abreviatura.toUpperCase(),
+        });
         queryClient.invalidateQueries({ queryKey: ["obtener-especies"] });
         queryClient.invalidateQueries({ queryKey: ["razas-especie"] });
         toast.success("Raza Actualizada Exitosamente");
       } else {
-        await createRaza({ ...formData, especieId });
+        await createRaza({
+          ...formData,
+          especieId,
+          abreviatura: formData.abreviatura.toUpperCase(),
+        });
         queryClient.invalidateQueries({ queryKey: ["obtener-especies"] });
         queryClient.invalidateQueries({ queryKey: ["razas-especie"] });
         toast.success("Raza Creada Exitosamente");
@@ -64,7 +72,20 @@ const RazaFormModal = ({ open, onOpenChange, especieId, raza }: Props) => {
 
       onOpenChange(false);
     } catch (error) {
-      toast.error("Ocurrio un error, intentalo de nuevo");
+      if (isAxiosError(error)) {
+        const messages = error.response?.data?.message;
+        const errorMessage = Array.isArray(messages)
+          ? messages[0]
+          : typeof messages === "string"
+            ? messages
+            : "Hubo un error al ejecutar la accion";
+
+        toast.error(errorMessage);
+      } else {
+        toast.error(
+          "Hubo un error al momento de realizar la accion. Inténtalo de nuevo.",
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +97,8 @@ const RazaFormModal = ({ open, onOpenChange, especieId, raza }: Props) => {
       description="Completa los datos de la raza"
       open={open}
       onOpenChange={onOpenChange}
-      size="md"
+      size="2xl"
+      height="auto"
     >
       <div className="space-y-4 py-4">
         <div className="space-y-2">

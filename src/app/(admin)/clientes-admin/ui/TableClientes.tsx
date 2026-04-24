@@ -58,7 +58,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
   const [open4, setOpen4] = useState(false);
   const [activo, setActivo] = useState(false);
   const [permisosSeleccionados, setPermisosSeleccionados] = useState<string[]>(
-    []
+    [],
   );
 
   const { data: permisos_cliente } = useGetPermisosByCliente(clienteId);
@@ -78,7 +78,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
       setOpen2(false);
     } catch (error) {
       toast.error(
-        "Ocurrio un error al momento de actualizar el estado del usuario"
+        "Ocurrio un error al momento de actualizar el estado del usuario",
       );
     }
   };
@@ -97,7 +97,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
   const handlePermisoChange = async (
     permisoId: string,
     campo: string,
-    valor: boolean
+    valor: boolean,
   ) => {
     try {
       const datosActualizacion = { [campo]: valor };
@@ -163,7 +163,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
       });
 
       toast.success(
-        `${permisosSeleccionados.length} permiso(s) agregado(s) correctamente`
+        `${permisosSeleccionados.length} permiso(s) agregado(s) correctamente`,
       );
       setOpen4(false);
       setPermisosSeleccionados([]);
@@ -188,8 +188,8 @@ const TableClientes = ({ data, isLoading }: Props) => {
   const permisosDisponibles = permisos_activos?.filter(
     (permisoActivo) =>
       !permisos_cliente?.some(
-        (permisoCliente) => permisoCliente.permiso.id === permisoActivo.id
-      )
+        (permisoCliente) => permisoCliente.permiso.id === permisoActivo.id,
+      ),
   );
 
   return (
@@ -201,6 +201,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
             <TableHead className="text-center">Email</TableHead>
             <TableHead className="text-center">Identificación</TableHead>
             <TableHead className="text-center">Dirección</TableHead>
+            <TableHead className="text-center">Rol</TableHead>
             <TableHead className="text-center">Permisos</TableHead>
             <TableHead className="text-center">Activo</TableHead>
             <TableHead className="text-center">Acciones</TableHead>
@@ -227,6 +228,9 @@ const TableClientes = ({ data, isLoading }: Props) => {
                     </TableCell>
                     <TableCell className="text-center">
                       {user.direccion}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user.rol.toLocaleLowerCase()}
                     </TableCell>
                     <TableCell className="text-center">
                       <p
@@ -294,7 +298,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
+                )),
               )}
         </TableBody>
       </Table>
@@ -488,7 +492,7 @@ const TableClientes = ({ data, isLoading }: Props) => {
                   <div className="p-4 space-y-3">
                     {permisosSeleccionados.map((permisoId) => {
                       const permiso = permisosDisponibles?.find(
-                        (p) => p.id === permisoId
+                        (p) => p.id === permisoId,
                       );
                       return permiso ? (
                         <div

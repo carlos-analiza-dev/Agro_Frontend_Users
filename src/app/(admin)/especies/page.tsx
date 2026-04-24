@@ -131,7 +131,7 @@ const EspeciesPage = () => {
         description="Ingresa los datos de la nueva especie animal"
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        size="lg"
+        size="xl"
         height="auto"
       >
         <div className="space-y-4 py-4">
@@ -176,7 +176,7 @@ const EspeciesPage = () => {
         description="Modifica los datos de la especie"
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        size="lg"
+        size="xl"
         height="auto"
       >
         <div className="space-y-4 py-4">
