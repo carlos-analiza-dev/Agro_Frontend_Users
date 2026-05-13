@@ -11,14 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TitlePages from "@/components/generics/TitlePages";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useAuthStore } from "@/providers/store/useAuthStore";
 import LoaderComponents from "@/components/generics/LoaderComponents";
 import dynamic from "next/dynamic";
@@ -27,6 +19,7 @@ import useGetCategorias from "@/hooks/categorias/useGetCategorias";
 import useGetProveedoresActivos from "@/hooks/proveedores/useGetProveedoresActivos";
 import Paginacion from "@/components/generics/Paginacion";
 import useGetAllMarcas from "@/hooks/marcas/useGetAllMarcas";
+import Modal from "@/components/generics/Modal";
 
 const FormProductos = dynamic(() => import("./ui/FormProductos"), {
   loading: () => <LoaderComponents />,
@@ -207,20 +200,16 @@ const PageProductosAdmin = () => {
         </div>
       )}
 
-      <AlertDialog open={isOpenSubServicio} onOpenChange={setIsOpenSubServicio}>
-        <AlertDialogContent className="h-[600px] overflow-y-auto">
-          <div className="flex justify-end">
-            <AlertDialogCancel>X</AlertDialogCancel>
-          </div>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Agregar Producto</AlertDialogTitle>
-            <AlertDialogDescription>
-              En esta seccion podras agregar nuevos productos
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <FormProductos onSuccess={() => setIsOpenSubServicio(false)} />
-        </AlertDialogContent>
-      </AlertDialog>
+      <Modal
+        open={isOpenSubServicio}
+        onOpenChange={setIsOpenSubServicio}
+        title="Agregar Producto"
+        description="En esta seccion podras agregar nuevos productos"
+        size="2xl"
+        height="auto"
+      >
+        <FormProductos onSuccess={() => setIsOpenSubServicio(false)} />
+      </Modal>
     </div>
   );
 };

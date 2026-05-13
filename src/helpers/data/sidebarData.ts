@@ -37,6 +37,7 @@ import {
   UserCheck,
   Scale,
   PawPrint,
+  Shirt,
 } from "lucide-react";
 
 export const navItems = [
@@ -81,6 +82,7 @@ export const navItems = [
       },
       { name: "Categorías", href: "/categorias-admin", icon: Layers3 },
       { name: "Sub categorías", href: "/sub-categorias-admin", icon: Boxes },
+      { name: "Tipos Producto", href: "/tipos-productos", icon: Shirt },
       { name: "Productos", href: "/productos-admin", icon: Handbag },
       { name: "Insumos", href: "/insumos-admin", icon: FlaskConical },
       {

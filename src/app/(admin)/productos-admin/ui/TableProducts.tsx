@@ -39,6 +39,7 @@ import ProductoImagenes from "./ProductoImagenes";
 import OptionsProducto from "./OptionsProducto";
 import { useAuthStore } from "@/providers/store/useAuthStore";
 import LotesByProducto from "./LotesByProducto";
+import Modal from "@/components/generics/Modal";
 
 interface Props {
   productos: Producto[];
@@ -56,7 +57,7 @@ const TableProducts = ({ productos }: Props) => {
   const [productoId, setProductoId] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(
-    null
+    null,
   );
 
   const handleEditProducto = (producto: Producto) => {
@@ -623,24 +624,20 @@ const TableProducts = ({ productos }: Props) => {
         </>
       )}
 
-      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogContent className="h-[600px] overflow-y-auto">
-          <div className="flex justify-end">
-            <AlertDialogCancel>X</AlertDialogCancel>
-          </div>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Editar Producto</AlertDialogTitle>
-            <AlertDialogDescription>
-              En esta seccion podras editar un producto
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <FormProductos
-            onSuccess={() => setIsOpen(false)}
-            editSubServicio={editSubServicio}
-            isEdit={isEdit}
-          />
-        </AlertDialogContent>
-      </AlertDialog>
+      <Modal
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title="Editar Producto"
+        description="En esta seccion podras editar un producto"
+        size="2xl"
+        height="auto"
+      >
+        <FormProductos
+          onSuccess={() => setIsOpen(false)}
+          editSubServicio={editSubServicio}
+          isEdit={isEdit}
+        />
+      </Modal>
 
       <AlertDialog open={isOpenPrecios} onOpenChange={setIsOpenPrecios}>
         <AlertDialogContent className="max-w-md">

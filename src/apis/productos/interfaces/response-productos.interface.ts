@@ -1,3 +1,6 @@
+import { SubCategoria } from "@/apis/subcategorias/interface/get-subcategorias.interface";
+import { TipoProducto } from "@/apis/tipo-producto/interface/response-tipo-producto.interface";
+
 export interface ResponseProductos {
   productos: Producto[];
   total: number;
@@ -18,6 +21,8 @@ export interface Producto {
   createdAt: Date;
   updatedAt: Date;
   categoriaId: string;
+  subcategoriaId: string;
+  tipo_producto_id: string;
   compra_minima?: number;
   distribucion_minima?: number;
   venta_minima?: number;
@@ -26,10 +31,21 @@ export interface Producto {
   tipo_fraccionamiento?: string;
   es_compra_bodega?: boolean;
   servicio: null;
+  componentes?: {
+    nombre: string;
+    cantidad?: string;
+    unidad?: string;
+  }[];
+
+  tipos_uso?: string[];
+  forma_uso?: string;
+  indicaciones?: string[];
   preciosPorPais: PreciosPorPai[];
   marca: Categoria;
   proveedor: Proveedor;
   categoria: Categoria;
+  subcategoria: SubCategoria;
+  tipo_producto: TipoProducto;
   tax: Tax;
   imagenes: ImageneProductos[];
 }

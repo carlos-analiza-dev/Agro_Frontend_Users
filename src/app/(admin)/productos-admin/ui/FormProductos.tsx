@@ -22,9 +22,12 @@ import useGetProveedoresActivos from "@/hooks/proveedores/useGetProveedoresActiv
 import { useAuthStore } from "@/providers/store/useAuthStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { X, Plus } from "lucide-react";
+import useGetSubCategoriaByCat from "@/hooks/subcategorias/useGetSubCategoriaByCat";
+import useGetTipoProductoBySubCategoria from "@/hooks/tipo-producto/useGetTipoProductoBySubCategoria";
 
 interface Props {
   editSubServicio?: Producto | null;
@@ -36,11 +39,22 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [unidadVentaSeleccionada, setUnidadVentaSeleccionada] = useState("");
+  const [nuevoTipoUso, setNuevoTipoUso] = useState("");
+  const [nuevaIndicacion, setNuevaIndicacion] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] =
+    useState<string>("");
+  const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] =
+    useState<string>("");
 
   const { data: marcasActivas } = useGetAllMarcas(10, 0);
   const { data: proveedoresActivos } = useGetProveedoresActivos();
   const { data: categorias } = useGetCategorias();
   const { data: impuestos } = useGetTaxesPais();
+
+  const { data: subcategorias, refetch: refetchSubcategorias } =
+    useGetSubCategoriaByCat(categoriaSeleccionada);
+  const { data: tiposProducto, refetch: refetchTiposProducto } =
+    useGetTipoProductoBySubCategoria(subcategoriaSeleccionada);
 
   const {
     register,
@@ -48,10 +62,58 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
-  } = useForm<CrearSubServicio>();
+  } = useForm<CrearSubServicio>({
+    defaultValues: {
+      componentes: [],
+      tipos_uso: [],
+      indicaciones: [],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "componentes",
+  });
 
   const unidadVenta = watch("unidad_venta");
+  const tiposUso = watch("tipos_uso");
+  const indicaciones = watch("indicaciones");
+  const categoriaId = watch("categoriaId");
+  const subcategoriaId = watch("subcategoriaId");
+
+  useEffect(() => {
+    if (categoriaId) {
+      setCategoriaSeleccionada(categoriaId);
+    } else {
+      setCategoriaSeleccionada("");
+      setSubcategoriaSeleccionada("");
+      setValue("subcategoriaId", undefined);
+      setValue("tipo_producto_id", undefined);
+    }
+  }, [categoriaId, setValue]);
+
+  useEffect(() => {
+    if (subcategoriaId) {
+      setSubcategoriaSeleccionada(subcategoriaId);
+    } else {
+      setSubcategoriaSeleccionada("");
+      setValue("tipo_producto_id", undefined);
+    }
+  }, [subcategoriaId, setValue]);
+
+  useEffect(() => {
+    if (categoriaSeleccionada) {
+      refetchSubcategorias();
+    }
+  }, [categoriaSeleccionada, refetchSubcategorias]);
+
+  useEffect(() => {
+    if (subcategoriaSeleccionada) {
+      refetchTiposProducto();
+    }
+  }, [subcategoriaSeleccionada, refetchTiposProducto]);
 
   useEffect(() => {
     setUnidadVentaSeleccionada(unidadVenta || "");
@@ -59,6 +121,13 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
 
   useEffect(() => {
     if (isEdit && editSubServicio) {
+      if (editSubServicio.categoria?.id) {
+        setCategoriaSeleccionada(editSubServicio.categoria.id);
+      }
+      if (editSubServicio.subcategoria?.id) {
+        setSubcategoriaSeleccionada(editSubServicio.subcategoria.id);
+      }
+
       reset({
         nombre: editSubServicio.nombre,
         tipo: editSubServicio.tipo,
@@ -68,9 +137,12 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         contenido: editSubServicio.contenido || 1,
         disponible: editSubServicio.disponible,
         isActive: editSubServicio.isActive,
-        marcaId: editSubServicio.marca.id,
-        proveedorId: editSubServicio.proveedor.id,
-        categoriaId: editSubServicio.categoria.id,
+        marcaId: editSubServicio.marca?.id,
+        proveedorId: editSubServicio.proveedor?.id,
+        categoriaId: editSubServicio.categoria?.id,
+        subcategoriaId: editSubServicio.subcategoria?.id,
+        tipo_producto_id:
+          editSubServicio.tipo_producto?.id || editSubServicio.tipo_producto_id,
         atributos: editSubServicio.atributos,
         codigo_barra: editSubServicio.codigo_barra,
         precio: Number(editSubServicio.preciosPorPais?.[0]?.precio),
@@ -80,6 +152,10 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         distribucion_minima: editSubServicio.distribucion_minima || 1,
         venta_minima: editSubServicio.venta_minima || 1,
         es_compra_bodega: editSubServicio.es_compra_bodega || false,
+        componentes: editSubServicio.componentes || [],
+        tipos_uso: editSubServicio.tipos_uso || [],
+        forma_uso: editSubServicio.forma_uso || "",
+        indicaciones: editSubServicio.indicaciones || [],
       });
       setUnidadVentaSeleccionada(editSubServicio.unidad_venta);
     } else {
@@ -95,6 +171,8 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         marcaId: undefined,
         proveedorId: undefined,
         categoriaId: undefined,
+        subcategoriaId: undefined,
+        tipo_producto_id: undefined,
         atributos: undefined,
         codigo_barra: undefined,
         precio: undefined,
@@ -104,9 +182,15 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         distribucion_minima: 1,
         venta_minima: 1,
         es_compra_bodega: false,
+        componentes: [],
+        tipos_uso: [],
+        forma_uso: "",
+        indicaciones: [],
       });
+      setCategoriaSeleccionada("");
+      setSubcategoriaSeleccionada("");
     }
-  }, [isEdit, editSubServicio, reset, setValue]);
+  }, [isEdit, editSubServicio, reset]);
 
   const mutation = useMutation({
     mutationFn: (data: CrearSubServicio) => AddProducto(data),
@@ -128,7 +212,7 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear el producto. Inténtalo de nuevo."
+          "Hubo un error al momento de crear el producto. Inténtalo de nuevo.",
         );
       }
     },
@@ -155,11 +239,45 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar el producto. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar el producto. Inténtalo de nuevo.",
         );
       }
     },
   });
+
+  const agregarTipoUso = () => {
+    if (nuevoTipoUso.trim() && !tiposUso?.includes(nuevoTipoUso.trim())) {
+      const nuevosTipos = [...(tiposUso || []), nuevoTipoUso.trim()];
+      setValue("tipos_uso", nuevosTipos);
+      setNuevoTipoUso("");
+    }
+  };
+
+  const eliminarTipoUso = (tipoUso: string) => {
+    const nuevosTipos = (tiposUso || []).filter((t) => t !== tipoUso);
+    setValue("tipos_uso", nuevosTipos);
+  };
+
+  const agregarIndicacion = () => {
+    if (
+      nuevaIndicacion.trim() &&
+      !indicaciones?.includes(nuevaIndicacion.trim())
+    ) {
+      const nuevasIndicaciones = [
+        ...(indicaciones || []),
+        nuevaIndicacion.trim(),
+      ];
+      setValue("indicaciones", nuevasIndicaciones);
+      setNuevaIndicacion("");
+    }
+  };
+
+  const eliminarIndicacion = (indicacion: string) => {
+    const nuevasIndicaciones = (indicaciones || []).filter(
+      (i) => i !== indicacion,
+    );
+    setValue("indicaciones", nuevasIndicaciones);
+  };
 
   const onSubmit = (data: CrearSubServicio) => {
     const payload = {
@@ -183,28 +301,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="codigo" className="font-bold">
-          Código de Producto*
-        </Label>
-        <Input
-          id="codigo"
-          {...register("codigo", {
-            required: "El código es requerido",
-            maxLength: {
-              value: 20,
-              message: "El código no puede tener más de 20 caracteres",
-            },
-          })}
-          placeholder="Ej: PROD-190019"
-          defaultValue={isEdit ? editSubServicio?.codigo : ""}
-        />
-        {errors.codigo && (
-          <p className="text-sm font-medium text-red-500">
-            {errors.codigo.message as string}
-          </p>
-        )}
-      </div>
-      <div className="space-y-2">
         <Label htmlFor="nombre" className="font-bold">
           Nombre del Producto*
         </Label>
@@ -221,7 +317,7 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
               message: "El nombre no puede tener más de 100 caracteres",
             },
           })}
-          placeholder="Ej: Fertilizantes, Herbicidas,Desparasitantes, etc."
+          placeholder="Ej: Fertilizantes, Herbicidas, Desparasitantes, etc."
         />
         {errors.nombre && (
           <p className="text-sm font-medium text-red-500">
@@ -244,7 +340,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
             },
           })}
           placeholder="Ej: 7501031311309"
-          defaultValue={isEdit ? editSubServicio?.codigo_barra : ""}
         />
         {errors.codigo_barra && (
           <p className="text-sm font-medium text-red-500">
@@ -258,8 +353,8 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
           Marca
         </Label>
         <Select
-          defaultValue={isEdit ? editSubServicio?.marca.id : ""}
           onValueChange={(value) => setValue("marcaId", value)}
+          defaultValue={isEdit ? editSubServicio?.marca?.id : ""}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecciona una marca" />
@@ -276,14 +371,18 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
 
       <div className="space-y-2">
         <Label htmlFor="categoriaId" className="font-bold">
-          Categoria
+          Categoría*
         </Label>
         <Select
-          defaultValue={isEdit ? editSubServicio?.categoria.id : ""}
-          onValueChange={(value) => setValue("categoriaId", value)}
+          onValueChange={(value) => {
+            setValue("categoriaId", value);
+            setValue("subcategoriaId", undefined);
+            setValue("tipo_producto_id", undefined);
+          }}
+          defaultValue={isEdit ? editSubServicio?.categoria?.id : ""}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona una categoria" />
+            <SelectValue placeholder="Selecciona una categoría" />
           </SelectTrigger>
           <SelectContent>
             {categorias?.data.map((cat) => (
@@ -293,7 +392,66 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
             ))}
           </SelectContent>
         </Select>
+        {errors.categoriaId && (
+          <p className="text-sm font-medium text-red-500">
+            {errors.categoriaId.message as string}
+          </p>
+        )}
       </div>
+
+      {categoriaSeleccionada && (
+        <div className="space-y-2">
+          <Label htmlFor="subcategoriaId" className="font-bold">
+            Subcategoría
+          </Label>
+          <Select
+            onValueChange={(value) => {
+              setValue("subcategoriaId", value);
+              setValue("tipo_producto_id", undefined);
+            }}
+            defaultValue={isEdit ? editSubServicio?.subcategoria?.id : ""}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona una subcategoría" />
+            </SelectTrigger>
+            <SelectContent>
+              {subcategorias?.map((subcat) => (
+                <SelectItem key={subcat.id} value={subcat.id}>
+                  {subcat.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {subcategoriaSeleccionada && (
+        <div className="space-y-2">
+          <Label htmlFor="tipo_producto_id" className="font-bold">
+            Tipo de Producto
+          </Label>
+          <Select
+            onValueChange={(value) => setValue("tipo_producto_id", value)}
+            defaultValue={
+              isEdit
+                ? editSubServicio?.tipo_producto?.id ||
+                  editSubServicio?.tipo_producto_id
+                : ""
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona un tipo de producto" />
+            </SelectTrigger>
+            <SelectContent>
+              {tiposProducto?.map((tipo) => (
+                <SelectItem key={tipo.id} value={tipo.id}>
+                  {tipo.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="unidad_venta" className="font-bold">
@@ -304,7 +462,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
           onValueChange={(value) => {
             setValue("unidad_venta", value);
             setUnidadVentaSeleccionada(value);
-
             setValue("unidad_fraccionamiento", undefined);
             setValue("contenido", 1);
           }}
@@ -352,7 +509,7 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
                     <SelectItem key={unidad.value} value={unidad.value}>
                       {unidad.label}
                     </SelectItem>
-                  )
+                  ),
                 )}
               </SelectContent>
             </Select>
@@ -365,6 +522,7 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
             <Input
               id="unidad_fraccionamiento"
               type="number"
+              step="0.0001"
               {...register("unidad_fraccionamiento", {
                 min: {
                   value: 0.0001,
@@ -372,9 +530,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
                 },
               })}
               placeholder="Ej: 1000 (para kg a gramos)"
-              defaultValue={
-                isEdit ? editSubServicio?.unidad_fraccionamiento || 1 : 1
-              }
             />
             {errors.unidad_fraccionamiento && (
               <p className="text-sm font-medium text-red-500">
@@ -390,6 +545,7 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
             <Input
               id="contenido"
               type="number"
+              step="0.0001"
               {...register("contenido", {
                 min: {
                   value: 0.0001,
@@ -397,7 +553,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
                 },
               })}
               placeholder="Ej: 1000 (para kg a gramos)"
-              defaultValue={isEdit ? editSubServicio?.contenido || 1 : 1}
             />
             {errors.contenido && (
               <p className="text-sm font-medium text-red-500">
@@ -411,7 +566,162 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
         </div>
       )}
 
-      {/* Nuevos campos de mínimos */}
+      <div className="space-y-4 p-4 border rounded-lg">
+        <h3 className="font-bold text-lg">Componentes del Producto</h3>
+        <p className="text-sm text-gray-500">
+          Lista de ingredientes/activos con cantidad o porcentaje
+        </p>
+
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end p-3 border rounded"
+          >
+            <div className="col-span-2">
+              <Label>Nombre del Componente</Label>
+              <Input
+                {...register(`componentes.${index}.nombre`, {
+                  required: "El nombre es obligatorio",
+                })}
+                placeholder="Ej: Proteína cruda"
+              />
+            </div>
+            <div>
+              <Label>Cantidad</Label>
+              <Input
+                {...register(`componentes.${index}.cantidad`)}
+                placeholder="Ej: 18"
+              />
+            </div>
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label>Unidad</Label>
+                <Input
+                  {...register(`componentes.${index}.unidad`)}
+                  placeholder="Ej: %, mg, g"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                onClick={() => remove(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => append({ nombre: "", cantidad: "", unidad: "" })}
+          className="w-full"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar Componente
+        </Button>
+      </div>
+
+      <div className="space-y-4 p-4 border rounded-lg">
+        <h3 className="font-bold text-lg">Tipos de Uso</h3>
+        <p className="text-sm text-gray-500">
+          ¿Para qué sirve este producto? (Ej: cochinilla, mastitis, engorde)
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          {tiposUso?.map((tipo, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            >
+              {tipo}
+              <button
+                type="button"
+                onClick={() => eliminarTipoUso(tipo)}
+                className="hover:text-blue-600"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            value={nuevoTipoUso}
+            onChange={(e) => setNuevoTipoUso(e.target.value)}
+            onKeyPress={(e) =>
+              e.key === "Enter" && (e.preventDefault(), agregarTipoUso())
+            }
+            placeholder="Escribe un tipo de uso y presiona Agregar"
+            className="flex-1"
+          />
+          <Button type="button" onClick={agregarTipoUso}>
+            <Plus className="h-4 w-4 mr-2" />
+            Agregar
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="forma_uso" className="font-bold">
+          Forma de Uso
+        </Label>
+        <Textarea
+          id="forma_uso"
+          {...register("forma_uso")}
+          placeholder="Ej: Aplicar 20cc por bomba de 20 litros. Usar en horas de baja temperatura. Agitar antes de usar."
+          className="min-h-[100px]"
+        />
+        <p className="text-xs text-gray-500">
+          Instrucciones de aplicación del producto
+        </p>
+      </div>
+
+      <div className="space-y-4 p-4 border rounded-lg">
+        <h3 className="font-bold text-lg">Indicaciones / Padecimientos</h3>
+        <p className="text-sm text-gray-500">
+          Condición que trata el producto (Ej: cochinilla, sarna, mastitis,
+          heridas)
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          {indicaciones?.map((indicacion, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+            >
+              {indicacion}
+              <button
+                type="button"
+                onClick={() => eliminarIndicacion(indicacion)}
+                className="hover:text-green-600"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            value={nuevaIndicacion}
+            onChange={(e) => setNuevaIndicacion(e.target.value)}
+            onKeyPress={(e) =>
+              e.key === "Enter" && (e.preventDefault(), agregarIndicacion())
+            }
+            placeholder="Escribe una indicación y presiona Agregar"
+            className="flex-1"
+          />
+          <Button type="button" onClick={agregarIndicacion}>
+            <Plus className="h-4 w-4 mr-2" />
+            Agregar
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="compra_minima" className="font-bold">
@@ -430,7 +740,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
               },
             })}
             placeholder="Ej: 100"
-            defaultValue={isEdit ? editSubServicio?.compra_minima || 1 : 1}
           />
           {errors.compra_minima && (
             <p className="text-sm font-medium text-red-500">
@@ -456,9 +765,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
               },
             })}
             placeholder="Ej: 50"
-            defaultValue={
-              isEdit ? editSubServicio?.distribucion_minima || 1 : 1
-            }
           />
           {errors.distribucion_minima && (
             <p className="text-sm font-medium text-red-500">
@@ -481,7 +787,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
               min: { value: 1, message: "La venta mínima debe ser al menos 1" },
             })}
             placeholder="Ej: 10"
-            defaultValue={isEdit ? editSubServicio?.venta_minima || 1 : 1}
           />
           {errors.venta_minima && (
             <p className="text-sm font-medium text-red-500">
@@ -499,9 +804,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
             id="es_compra_bodega"
             {...register("es_compra_bodega")}
             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            defaultChecked={
-              isEdit ? editSubServicio?.es_compra_bodega || false : false
-            }
           />
           <Label htmlFor="es_compra_bodega" className="text-sm font-normal">
             Compra directa a bodega
@@ -514,56 +816,48 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
       </div>
 
       {!isEdit && (
-        <>
-          <div className="flex justify-between">
-            <div className="space-y-2">
-              <Label htmlFor="costo" className="font-bold">
-                Costo*
-              </Label>
-              <Input
-                id="costo"
-                type="number"
-                step="0.01"
-                {...register("costo", {
-                  required: "El costo es requerido",
-                  min: { value: 0, message: "El costo no puede ser negativo" },
-                })}
-                placeholder="0.00"
-                defaultValue={
-                  isEdit ? editSubServicio?.preciosPorPais?.[0]?.costo : ""
-                }
-              />
-              {errors.costo && (
-                <p className="text-sm font-medium text-red-500">
-                  {errors.costo.message as string}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="precio" className="font-bold">
-                Precio*
-              </Label>
-              <Input
-                id="precio"
-                type="number"
-                step="0.01"
-                {...register("precio", {
-                  required: "El precio es requerido",
-                  min: { value: 0, message: "El precio no puede ser negativo" },
-                })}
-                placeholder="0.00"
-                defaultValue={
-                  isEdit ? editSubServicio?.preciosPorPais?.[0]?.precio : ""
-                }
-              />
-              {errors.precio && (
-                <p className="text-sm font-medium text-red-500">
-                  {errors.precio.message as string}
-                </p>
-              )}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="costo" className="font-bold">
+              Costo*
+            </Label>
+            <Input
+              id="costo"
+              type="number"
+              step="0.01"
+              {...register("costo", {
+                required: "El costo es requerido",
+                min: { value: 0, message: "El costo no puede ser negativo" },
+              })}
+              placeholder="0.00"
+            />
+            {errors.costo && (
+              <p className="text-sm font-medium text-red-500">
+                {errors.costo.message as string}
+              </p>
+            )}
           </div>
-        </>
+          <div className="space-y-2">
+            <Label htmlFor="precio" className="font-bold">
+              Precio*
+            </Label>
+            <Input
+              id="precio"
+              type="number"
+              step="0.01"
+              {...register("precio", {
+                required: "El precio es requerido",
+                min: { value: 0, message: "El precio no puede ser negativo" },
+              })}
+              placeholder="0.00"
+            />
+            {errors.precio && (
+              <p className="text-sm font-medium text-red-500">
+                {errors.precio.message as string}
+              </p>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="space-y-2">
@@ -571,8 +865,8 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
           Impuesto (Tax Rate %)
         </Label>
         <Select
-          defaultValue={isEdit ? editSubServicio?.tax?.id : ""}
           onValueChange={(value) => setValue("taxId", value)}
+          defaultValue={isEdit ? editSubServicio?.tax?.id : ""}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecciona un impuesto" />
@@ -602,7 +896,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
           })}
           placeholder="Ej: Presentación 1L, Color verde, Uso agrícola..."
           className="min-h-[80px]"
-          defaultValue={isEdit ? editSubServicio?.atributos : ""}
         />
         {errors.atributos && (
           <p className="text-sm font-medium text-red-500">
@@ -616,8 +909,8 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
           Proveedor
         </Label>
         <Select
-          defaultValue={isEdit ? editSubServicio?.proveedor.id : ""}
           onValueChange={(value) => setValue("proveedorId", value)}
+          defaultValue={isEdit ? editSubServicio?.proveedor?.id : ""}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecciona un proveedor" />
@@ -642,7 +935,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
                 id="disponible"
                 {...register("disponible")}
                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                defaultChecked
               />
               <Label htmlFor="disponible" className="text-sm font-normal">
                 Producto disponible
@@ -658,7 +950,6 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
                 id="actividad"
                 {...register("isActive")}
                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                defaultChecked
               />
               <Label htmlFor="actividad" className="text-sm font-normal">
                 Producto activo

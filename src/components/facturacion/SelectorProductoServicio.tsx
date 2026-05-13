@@ -1,9 +1,21 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Dispatch, SetStateAction } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, X } from "lucide-react";
 import { PreciosPorPai } from "@/apis/productos/interfaces/response-productos.interface";
+import { Categoria } from "@/apis/categorias/interface/response-categorias.interface";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { SubCategoria } from "@/apis/subcategorias/interface/get-subcategorias.interface";
+import { TipoProducto } from "@/apis/tipo-producto/interface/response-tipo-producto.interface";
 
 interface ProductoServicioUnificado {
   id: string;
@@ -20,6 +32,20 @@ interface SelectorProductoServicioProps {
   productosYServicios: ProductoServicioUnificado[];
   productosSeleccionados: string[];
   disabled?: boolean;
+  categorias: Categoria[] | undefined;
+  subcategorias: SubCategoria[] | undefined;
+  tipo_producto: TipoProducto[] | undefined;
+  setCategoriaId: Dispatch<SetStateAction<string>>;
+  setSubcategoriaId: Dispatch<SetStateAction<string>>;
+  setTipoId: Dispatch<SetStateAction<string>>;
+  categoriaId: string;
+  subcategoriaId: string;
+  tipoId: string;
+  simbolo: string;
+  setIndicaciones: Dispatch<SetStateAction<string>>;
+  setTipo_uso: Dispatch<SetStateAction<string>>;
+  tipo_uso: string;
+  indicaciones: string;
 }
 
 const SelectorProductoServicio = ({
@@ -27,6 +53,20 @@ const SelectorProductoServicio = ({
   productosYServicios,
   productosSeleccionados,
   disabled = false,
+  categorias,
+  subcategorias,
+  tipo_producto,
+  setCategoriaId,
+  setSubcategoriaId,
+  setTipoId,
+  categoriaId,
+  subcategoriaId,
+  tipoId,
+  simbolo,
+  setIndicaciones,
+  setTipo_uso,
+  indicaciones,
+  tipo_uso,
 }: SelectorProductoServicioProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +76,7 @@ const SelectorProductoServicio = ({
 
     if (searchTerm) {
       opciones = opciones.filter((item) =>
-        item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        item.nombre.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -55,6 +95,120 @@ const SelectorProductoServicio = ({
 
   return (
     <div className="relative mb-4">
+      <div className="mt-2 mb-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label>Categoria del Producto</Label>
+
+          <Select
+            value={categoriaId}
+            onValueChange={(value) => {
+              setCategoriaId(value);
+
+              setSubcategoriaId("");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="--Categoria--" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                {categorias && categorias.length > 0 ? (
+                  categorias.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.nombre}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <p>No se encontraron categorias</p>
+                )}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Sub Categoria del Producto</Label>
+
+          <Select
+            value={subcategoriaId}
+            onValueChange={(value) => {
+              setSubcategoriaId(value);
+              setTipoId("");
+            }}
+            disabled={!categoriaId}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="--Sub Categoria--" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                {subcategorias && subcategorias.length > 0 ? (
+                  subcategorias.map((subcat) => (
+                    <SelectItem key={subcat.id} value={subcat.id}>
+                      {subcat.nombre}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <p>No se encontraron sub categorias</p>
+                )}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tipo de Producto</Label>
+
+          <Select
+            value={tipoId}
+            onValueChange={(value) => {
+              setTipoId(value);
+            }}
+            disabled={!subcategoriaId}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="--Tipo Producto--" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                {tipo_producto && tipo_producto.length > 0 ? (
+                  tipo_producto.map((tipo) => (
+                    <SelectItem key={tipo.id} value={tipo.id}>
+                      {tipo.nombre}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <p>No se encontraron tipos</p>
+                )}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+        <Input
+          type="text"
+          placeholder="Ingresa las indicaciones del producto"
+          value={indicaciones}
+          onChange={(e) => {
+            setIndicaciones(e.target.value);
+          }}
+        />
+
+        <Input
+          type="text"
+          placeholder="Ingresa los tipos de uso del producto"
+          value={tipo_uso}
+          onChange={(e) => {
+            setTipo_uso(e.target.value);
+          }}
+        />
+      </div>
+
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Input
@@ -134,7 +288,7 @@ const SelectorProductoServicio = ({
                         </div>
                       </div>
                       <div className="text-sm text-gray-600">
-                        Precio: L. {item.preciosPorPais[0]?.precio || 0}
+                        Precio: {simbolo} {item.preciosPorPais[0]?.precio || 0}
                         {item.tipo === "servicio" &&
                           item.preciosPorPais.length > 1 && (
                             <span className="text-xs text-gray-500 ml-2">

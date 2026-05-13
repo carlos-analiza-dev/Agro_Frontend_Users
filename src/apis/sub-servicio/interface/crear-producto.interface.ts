@@ -1,7 +1,6 @@
 export interface CrearSubServicio {
   nombre: string;
   tipo: string;
-  codigo?: string;
   unidad_venta: string;
   codigo_barra?: string;
   atributos?: string;
@@ -15,6 +14,8 @@ export interface CrearSubServicio {
   marcaId?: string;
   proveedorId?: string;
   categoriaId?: string;
+  subcategoriaId?: string;
+  tipo_producto_id?: string;
   paisId?: string;
   compra_minima?: number;
   distribucion_minima?: number;
@@ -23,4 +24,12 @@ export interface CrearSubServicio {
   contenido?: number;
   tipo_fraccionamiento?: string;
   es_compra_bodega?: boolean;
+  componentes?: {
+    nombre: string;
+    cantidad?: string;
+    unidad?: string;
+  }[];
+  tipos_uso?: string[];
+  forma_uso?: string;
+  indicaciones?: string[];
 }

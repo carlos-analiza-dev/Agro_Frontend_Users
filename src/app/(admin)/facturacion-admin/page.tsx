@@ -262,7 +262,7 @@ const FacturacionPage = () => {
             title="ISV 15%"
             value={facturas.data.reduce(
               (sum, factura) => sum + parseFloat(factura.isv_15),
-              0
+              0,
             )}
             currencySymbol={simbolo}
           />
@@ -270,7 +270,7 @@ const FacturacionPage = () => {
             title="ISV 18%"
             value={facturas.data.reduce(
               (sum, factura) => sum + parseFloat(factura.isv_18),
-              0
+              0,
             )}
             currencySymbol={simbolo}
           />
@@ -278,7 +278,7 @@ const FacturacionPage = () => {
             title="Gravado 15%"
             value={facturas.data.reduce(
               (sum, factura) => sum + parseFloat(factura.importe_gravado_15),
-              0
+              0,
             )}
             currencySymbol={simbolo}
           />
@@ -286,7 +286,7 @@ const FacturacionPage = () => {
             title="Gravado 18%"
             value={facturas.data.reduce(
               (sum, factura) => sum + parseFloat(factura.importe_gravado_18),
-              0
+              0,
             )}
             currencySymbol={simbolo}
           />
@@ -305,7 +305,10 @@ const FacturacionPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="max-h-[70vh] overflow-y-auto">
-            <FormCreateFactura onSuccess={() => setIsOpen(false)} />
+            <FormCreateFactura
+              onSuccess={() => setIsOpen(false)}
+              simbolo={simbolo}
+            />
           </div>
         </AlertDialogContent>
       </AlertDialog>
