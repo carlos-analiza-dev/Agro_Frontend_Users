@@ -1,19 +1,10 @@
 "use client";
 import useGetFacturas from "@/hooks/facturas/useGetFacturas";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Plus, Filter, Calendar, Building } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -240,7 +231,11 @@ const FacturacionPage = () => {
             </div>
           ) : (
             <>
-              <TableFacturas facturas={facturas} user={user} />
+              <TableFacturas
+                facturas={facturas}
+                user={user}
+                simbolo={simbolo}
+              />
 
               {facturas && facturas.total > limit && (
                 <div className="flex justify-center mt-6">

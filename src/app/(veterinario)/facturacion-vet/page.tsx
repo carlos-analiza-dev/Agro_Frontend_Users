@@ -34,6 +34,8 @@ import React, { useState } from "react";
 
 const FacturacionVeterinarioPage = () => {
   const { user } = useAuthStore();
+
+  const simbolo = user?.pais.simbolo_moneda || "";
   const sucursalUsuario = user?.sucursal.id || "";
   const [isOpen, setIsOpen] = useState(false);
   const [offset, setOffset] = useState(0);
@@ -175,7 +177,11 @@ const FacturacionVeterinarioPage = () => {
             </div>
           ) : (
             <>
-              <TableFacturas facturas={facturas} user={user} />
+              <TableFacturas
+                facturas={facturas}
+                user={user}
+                simbolo={simbolo}
+              />
 
               {facturas && facturas.total > limit && (
                 <div className="flex items-center justify-between mt-6">
@@ -279,10 +285,10 @@ const FacturacionVeterinarioPage = () => {
                   facturas.data
                     .reduce(
                       (sum, factura) => sum + parseFloat(factura.isv_15),
-                      0
+                      0,
                     )
                     .toString(),
-                  facturas.data[0]?.pais.simbolo_moneda || "L"
+                  facturas.data[0]?.pais.simbolo_moneda || "L",
                 )}
               </div>
             </CardContent>
@@ -297,10 +303,10 @@ const FacturacionVeterinarioPage = () => {
                   facturas.data
                     .reduce(
                       (sum, factura) => sum + parseFloat(factura.isv_18),
-                      0
+                      0,
                     )
                     .toString(),
-                  facturas.data[0]?.pais.simbolo_moneda || "L"
+                  facturas.data[0]?.pais.simbolo_moneda || "L",
                 )}
               </div>
             </CardContent>
@@ -316,10 +322,10 @@ const FacturacionVeterinarioPage = () => {
                     .reduce(
                       (sum, factura) =>
                         sum + parseFloat(factura.importe_gravado_15),
-                      0
+                      0,
                     )
                     .toString(),
-                  facturas.data[0]?.pais.simbolo_moneda || "L"
+                  facturas.data[0]?.pais.simbolo_moneda || "L",
                 )}
               </div>
             </CardContent>
@@ -335,10 +341,10 @@ const FacturacionVeterinarioPage = () => {
                     .reduce(
                       (sum, factura) =>
                         sum + parseFloat(factura.importe_gravado_18),
-                      0
+                      0,
                     )
                     .toString(),
-                  facturas.data[0]?.pais.simbolo_moneda || "L"
+                  facturas.data[0]?.pais.simbolo_moneda || "L",
                 )}
               </div>
             </CardContent>
@@ -357,7 +363,10 @@ const FacturacionVeterinarioPage = () => {
               Aquí puede generar las facturas de ventas realizadas
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <FormCreateFactura onSuccess={() => setIsOpen(false)} />
+          <FormCreateFactura
+            onSuccess={() => setIsOpen(false)}
+            simbolo={simbolo}
+          />
         </AlertDialogContent>
       </AlertDialog>
     </div>

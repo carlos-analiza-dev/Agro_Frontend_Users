@@ -53,9 +53,15 @@ interface Props {
   facturas: ResponseFacturasInterface | undefined;
   onFacturaActualizada?: () => void;
   user: User | undefined;
+  simbolo: string;
 }
 
-const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
+const TableFacturas = ({
+  facturas,
+  onFacturaActualizada,
+  user,
+  simbolo,
+}: Props) => {
   const userId = user?.id || "";
   const rolUsuario = user?.role.name || "";
   const esAdministrador = rolUsuario === "Administrador";
@@ -863,6 +869,7 @@ const TableFacturas = ({ facturas, onFacturaActualizada, user }: Props) => {
               factura={facturaEditando}
               onSuccess={handleEditSuccess}
               onCancel={handleCancelEdit}
+              simbolo={simbolo}
             />
           )}
         </AlertDialogContent>

@@ -59,6 +59,7 @@ import { FormaPago } from "@/helpers/data/formaPago";
 import useGetAllCategorias from "@/hooks/categorias/useGetAllCategorias";
 import useGetSubCategoriaByCat from "@/hooks/subcategorias/useGetSubCategoriaByCat";
 import useGetTipoProductoBySubCategoria from "@/hooks/tipo-producto/useGetTipoProductoBySubCategoria";
+import { useDebounceFacturas } from "@/hooks/facturas/useDebounceFacturas";
 interface Props {
   onSuccess: () => void;
   simbolo: string;
@@ -70,6 +71,13 @@ interface ProductoServicioUnificado {
   tipo: "producto" | "servicio";
   precio?: number;
   preciosPorPais: PreciosPorPai[];
+  tipo_uso?: string[];
+  indicaciones?: string[];
+  componentes?: {
+    nombre: string;
+    cantidad?: string;
+    unidad?: string;
+  }[];
   cantidadMin?: number;
   cantidadMax?: number;
 }
@@ -84,13 +92,15 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
   const [indicaciones, setIndicaciones] = useState("");
   const [tipo_uso, setTipo_uso] = useState("");
   const [tipoId, setTipoId] = useState("");
+  const debouncedIndicaciones = useDebounceFacturas(indicaciones, 1000);
+  const debouncedTipoUso = useDebounceFacturas(tipo_uso, 1000);
   const { data: productos, isLoading: loadingProductos } =
     useGetProductosDisponibles({
       categoria: categoriaId,
       subcategoria: subcategoriaId,
       tipo_producto: tipoId,
-      indicaciones,
-      tipo_uso,
+      indicaciones: debouncedIndicaciones,
+      tipo_uso: debouncedTipoUso,
     });
 
   const { data: categorias } = useGetAllCategorias();
@@ -787,6 +797,7 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
               setTipo_uso={setTipo_uso}
               tipo_uso={tipo_uso}
               indicaciones={indicaciones}
+              isLoading={loadingProductos}
             />
 
             {hayProductosDuplicados && (

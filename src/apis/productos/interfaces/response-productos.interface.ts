@@ -1,5 +1,6 @@
 import { SubCategoria } from "@/apis/subcategorias/interface/get-subcategorias.interface";
 import { TipoProducto } from "@/apis/tipo-producto/interface/response-tipo-producto.interface";
+import { TipoSubServicio } from "@/interfaces/enums/tipo-sub-servicios";
 
 export interface ResponseProductos {
   productos: Producto[];
@@ -12,7 +13,7 @@ export interface Producto {
   codigo: string;
   codigo_barra: string;
   atributos: string;
-  tipo: string;
+  tipo: TipoSubServicio;
   unidad_venta: string;
   descripcion: string;
   servicioId: null;

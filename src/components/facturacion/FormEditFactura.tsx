@@ -42,12 +42,16 @@ import ExistenciaBadge from "./ExistenciaBadge";
 import SelectorProductoServicio from "./SelectorProductoServicio";
 import BuscadorClientes from "./BuscadorClientes";
 import useGetDescuentosClientes from "@/hooks/descuentos-clientes/useGetDescuentosClientes";
-import { ResponseTaxesInterface } from "@/apis/impuestos/interfaces/response-taxes-pais.interface";
+import { useDebounceFacturas } from "@/hooks/facturas/useDebounceFacturas";
+import useGetAllCategorias from "@/hooks/categorias/useGetAllCategorias";
+import useGetSubCategoriaByCat from "@/hooks/subcategorias/useGetSubCategoriaByCat";
+import useGetTipoProductoBySubCategoria from "@/hooks/tipo-producto/useGetTipoProductoBySubCategoria";
 
 interface Props {
   factura: Factura;
   onSuccess: () => void;
   onCancel: () => void;
+  simbolo: string;
 }
 
 interface ProductoServicioUnificado {
@@ -56,16 +60,41 @@ interface ProductoServicioUnificado {
   tipo: "producto" | "servicio";
   precio?: number;
   preciosPorPais: PreciosPorPai[];
+  tipo_uso?: string[];
+  indicaciones?: string[];
+  componentes?: {
+    nombre: string;
+    cantidad?: string;
+    unidad?: string;
+  }[];
   cantidadMin?: number;
   cantidadMax?: number;
 }
 
-const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
+const FormEditFactura = ({ factura, onSuccess, onCancel, simbolo }: Props) => {
   const { user } = useAuthStore();
   const sucursal_id = user?.sucursal.id || "";
   const queryClient = useQueryClient();
+  const [categoriaId, setCategoriaId] = useState("");
+  const [subcategoriaId, setSubcategoriaId] = useState("");
+  const [indicaciones, setIndicaciones] = useState("");
+  const [tipo_uso, setTipo_uso] = useState("");
+  const [tipoId, setTipoId] = useState("");
+  const debouncedIndicaciones = useDebounceFacturas(indicaciones, 1000);
+  const debouncedTipoUso = useDebounceFacturas(tipo_uso, 1000);
+  const { data: categorias } = useGetAllCategorias();
+  const { data: subcategorias } = useGetSubCategoriaByCat(categoriaId);
+
+  const { data: tipo_producto } =
+    useGetTipoProductoBySubCategoria(subcategoriaId);
   const { data: productos, isLoading: loadingProductos } =
-    useGetProductosDisponibles();
+    useGetProductosDisponibles({
+      categoria: categoriaId,
+      subcategoria: subcategoriaId,
+      tipo_producto: tipoId,
+      indicaciones: debouncedIndicaciones,
+      tipo_uso: debouncedTipoUso,
+    });
   const { data: servicios, isLoading: loadingServicios } =
     useGetServiciosDisponibles();
   const { data: clientes, isLoading: loadingClientes } =
@@ -120,6 +149,9 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
           tipo: "producto",
           nombre: p.nombre,
           preciosPorPais: p.preciosPorPais || [],
+          indicaciones: p.indicaciones || [],
+          tipos_uso: p.tipos_uso || [],
+          componentes: p.componentes || [],
         })) || [];
 
       const serviciosFormateados =
@@ -138,14 +170,14 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
   }, [productos, servicios]);
 
   useEffect(() => {
-    if (productosYServicios.length > 0 && factura.detalles) {
+    if (productosYServicios.length > 0 && detalles.length > 0) {
       const nuevosPreciosServicios: { [key: string]: PreciosPorPai[] } = {};
 
-      factura.detalles.forEach((detalle: any, index: number) => {
-        const productoId =
-          detalle.producto_servicio_id || detalle.id_producto_servicio;
-        if (productoId) {
-          const item = productosYServicios.find((p) => p.id === productoId);
+      detalles.forEach((detalle: any, index: number) => {
+        if (detalle.id_producto_servicio) {
+          const item = productosYServicios.find(
+            (p) => p.id === detalle.id_producto_servicio,
+          );
           if (item?.tipo === "servicio") {
             nuevosPreciosServicios[index] = item.preciosPorPais || [];
           }
@@ -154,7 +186,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
 
       setPreciosServicioSeleccionados(nuevosPreciosServicios);
     }
-  }, [productosYServicios, factura.detalles]);
+  }, [productosYServicios]);
 
   const detalles = watch("detalles") ?? [];
   const descuentos = watch("descuentos_rebajas") || 0;
@@ -203,7 +235,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
 
   const obtenerPreciosServicio = (servicioId: string): PreciosPorPai[] => {
     const servicio = productosYServicios.find(
-      (p) => p.id === servicioId && p.tipo === "servicio"
+      (p) => p.id === servicioId && p.tipo === "servicio",
     );
     return servicio?.preciosPorPais || [];
   };
@@ -240,13 +272,13 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
         if (preciosServicio.length > 0) {
           setValue(
             `detalles.${index}.precio`,
-            Number(preciosServicio[0].precio)
+            Number(preciosServicio[0].precio),
           );
         }
       } else {
         setValue(
           `detalles.${index}.precio`,
-          Number(itemSeleccionado.preciosPorPais[0]?.precio || 0)
+          Number(itemSeleccionado.preciosPorPais[0]?.precio || 0),
         );
 
         setPreciosServicioSeleccionados((prev) => {
@@ -264,7 +296,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
     const preciosDisponibles = preciosServicioSeleccionados[index];
     if (preciosDisponibles) {
       const precioSeleccionado = preciosDisponibles.find(
-        (p) => p.id === precioId
+        (p) => p.id === precioId,
       );
       if (precioSeleccionado) {
         setValue(`detalles.${index}.precio`, Number(precioSeleccionado.precio));
@@ -293,7 +325,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
     return detalles
       .filter((detalle) => {
         const producto = productosYServicios.find(
-          (p) => p.id === detalle.id_producto_servicio
+          (p) => p.id === detalle.id_producto_servicio,
         );
         return producto?.tipo === "producto" && detalle.id_producto_servicio;
       })
@@ -337,7 +369,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
   const productosSinExistencia = React.useMemo(() => {
     return detalles.filter((detalle) => {
       const producto = productosYServicios.find(
-        (p) => p.id === detalle.id_producto_servicio
+        (p) => p.id === detalle.id_producto_servicio,
       );
       if (producto?.tipo === "producto") {
         const existencia = mapaExistencias[detalle.id_producto_servicio] || 0;
@@ -353,7 +385,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
   const infoProductosSinExistencia = React.useMemo(() => {
     return productosSinExistencia.map((detalle) => {
       const producto = productosYServicios.find(
-        (p) => p.id === detalle.id_producto_servicio
+        (p) => p.id === detalle.id_producto_servicio,
       );
       const existencia = mapaExistencias[detalle.id_producto_servicio] || 0;
 
@@ -392,7 +424,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
 
     if (descuentoId && descuentoId !== "ninguno") {
       const descuentoSeleccionado = descuentos_clientes?.find(
-        (d: Descuento) => d.id === descuentoId
+        (d: Descuento) => d.id === descuentoId,
       );
 
       if (descuentoSeleccionado) {
@@ -410,7 +442,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
       setValue("descuento_id", null);
     } else {
       const descuentoSeleccionado = descuentos_clientes?.find(
-        (d: Descuento) => d.id === value
+        (d: Descuento) => d.id === value,
       );
       if (descuentoSeleccionado) {
         const descuento_calculado =
@@ -449,7 +481,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar la factura. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar la factura. Inténtalo de nuevo.",
         );
       }
     },
@@ -462,7 +494,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
     }
 
     const detallesInvalidos = data.detalles.some(
-      (detalle) => !detalle.id_producto_servicio
+      (detalle) => !detalle.id_producto_servicio,
     );
     if (detallesInvalidos) {
       toast.error("Todos los productos/servicios deben estar seleccionados");
@@ -478,7 +510,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
         .join(", ");
 
       toast.error(
-        `No puede agregar el mismo producto más de una vez: ${productosDuplicadosNombres}`
+        `No puede agregar el mismo producto más de una vez: ${productosDuplicadosNombres}`,
       );
       return;
     }
@@ -487,7 +519,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
       const productosLista = infoProductosSinExistencia
         .map(
           (p) =>
-            `${p.nombre} (necesita: ${p.cantidadRequerida}, tiene: ${p.existenciaActual})`
+            `${p.nombre} (necesita: ${p.cantidadRequerida}, tiene: ${p.existenciaActual})`,
         )
         .join(", ");
 
@@ -541,7 +573,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
               <Label className="font-semibold">Fecha Límite:</Label>
               <p>
                 {new Date(factura.fecha_limite_emision).toLocaleDateString(
-                  "es-ES"
+                  "es-ES",
                 )}
               </p>
             </div>
@@ -574,7 +606,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
                   Cliente seleccionado:{" "}
                   {
                     clientes?.data?.clientes.find(
-                      (c) => c.id === watch("id_cliente")
+                      (c) => c.id === watch("id_cliente"),
                     )?.nombre
                   }
                 </div>
@@ -745,7 +777,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
             onAgregar={(productoId) => {
               const emptyFieldIndex = fields.findIndex(
                 (field, index) =>
-                  !watch(`detalles.${index}.id_producto_servicio`)
+                  !watch(`detalles.${index}.id_producto_servicio`),
               );
 
               if (emptyFieldIndex !== -1) {
@@ -765,6 +797,22 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
               hayProductosDuplicados ||
               !tieneExistenciaSuficiente
             }
+            categorias={categorias}
+            subcategorias={subcategorias}
+            tipo_producto={tipo_producto}
+            setCategoriaId={setCategoriaId}
+            setSubcategoriaId={setSubcategoriaId}
+            categoriaId={categoriaId}
+            subcategoriaId={subcategoriaId}
+            setTipoId={setTipoId}
+            tipoId={tipoId}
+            simbolo={simbolo}
+            setIndicaciones={setIndicaciones}
+            setTipo_uso={setTipo_uso}
+            tipo_uso={tipo_uso}
+            indicaciones={indicaciones}
+            isEdit={true}
+            isLoading={loadingProductos}
           />
 
           {hayProductosDuplicados && (
@@ -778,7 +826,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
               <ul className="mt-1 text-sm text-red-600">
                 {productosDuplicados.map((productoId) => {
                   const producto = productosYServicios.find(
-                    (p) => p.id === productoId
+                    (p) => p.id === productoId,
                   );
                   return (
                     <li key={productoId}>
@@ -824,12 +872,12 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
             <TableBody>
               {fields.map((field, index) => {
                 const productoId = watch(
-                  `detalles.${index}.id_producto_servicio`
+                  `detalles.${index}.id_producto_servicio`,
                 );
                 const cantidad = watch(`detalles.${index}.cantidad`) || 0;
                 const precio = watch(`detalles.${index}.precio`) || 0;
                 const item = productosYServicios.find(
-                  (p) => p.id === productoId
+                  (p) => p.id === productoId,
                 );
                 const esServicio = item?.tipo === "servicio";
                 const preciosDisponibles = preciosServicioSeleccionados[index];
@@ -912,7 +960,7 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
                           }
                           value={
                             preciosDisponibles.find(
-                              (p) => Number(p.precio) === precio
+                              (p) => Number(p.precio) === precio,
                             )?.id || ""
                           }
                         >
@@ -949,12 +997,12 @@ const FormEditFactura = ({ factura, onSuccess, onCancel }: Props) => {
                       {esServicio && preciosDisponibles ? (
                         <div className="text-sm text-gray-600">
                           {preciosDisponibles.find(
-                            (p) => Number(p.precio) === precio
+                            (p) => Number(p.precio) === precio,
                           )
                             ? formatearRangoAnimales(
                                 preciosDisponibles.find(
-                                  (p) => Number(p.precio) === precio
-                                )!
+                                  (p) => Number(p.precio) === precio,
+                                )!,
                               )
                             : "Seleccione un precio"}
                         </div>
