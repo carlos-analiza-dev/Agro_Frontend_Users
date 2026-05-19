@@ -27,7 +27,7 @@ const PedididosPendientesAdmin = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [tipoPedido, setTipoPedido] = useState<EstadoPedido>(
-    EstadoPedido.PENDIENTE
+    EstadoPedido.PENDIENTE,
   );
   const [sucursalSeleccionada, setSucursalSeleccionada] =
     useState(sucursalUsuario);
@@ -43,7 +43,7 @@ const PedididosPendientesAdmin = () => {
     sucursalSeleccionada,
     ITEMS_PER_PAGE,
     (currentPage - 1) * ITEMS_PER_PAGE,
-    tipoPedido
+    tipoPedido,
   );
 
   const { data: countsPorEstado, isLoading: isLoadingCounts } =
@@ -78,7 +78,7 @@ const PedididosPendientesAdmin = () => {
 
   const sucursalesValidas =
     sucursalesPais?.filter(
-      (sucursal) => sucursal.id && sucursal.id.trim() !== ""
+      (sucursal) => sucursal.id && sucursal.id.trim() !== "",
     ) || [];
 
   if (isLoading) {

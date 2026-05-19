@@ -174,7 +174,8 @@ const TiposProductosPage = () => {
       >
         <FormTiposProductos
           onSuccess={() => {
-            (setOpenModal(false), setSelectedTipo(null));
+            setOpenModal(false);
+            setSelectedTipo(null);
           }}
           setOpenModal={setOpenModal}
           tipoProducto={selectedTipo}

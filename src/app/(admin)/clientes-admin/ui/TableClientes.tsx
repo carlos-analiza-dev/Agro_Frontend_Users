@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, Edit, XCircle, Plus } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import FormClientes from "./FormClientes";
 import useGetPermisosByCliente from "@/hooks/permisos-clientes/useGetPermisosByCliente";
@@ -37,9 +37,9 @@ import useGetPermisosActivos from "@/hooks/permisos-clientes/useGetPermisosActiv
 import { EditarPermisoByCliente } from "@/apis/permisos-clientes/accions/editar-permiso_by_cliente";
 import { CrearPermisoByCliente } from "@/apis/permisos-clientes/accions/crear-permiso_by_cliente";
 import { EliminarPermisoByCliente } from "@/apis/permisos-clientes/accions/eliminar-permiso_by_cliente";
-import TablePermisosCliente from "./TablePermisosCliente";
-import ResumenPermiso from "./ResumenPermiso";
-import TablePermisosAsignados from "./TablePermisosAsignados";
+import TablePermisosCliente from "@/components/permisos/TablePermisosCliente";
+import ResumenPermiso from "@/components/permisos/ResumenPermiso";
+import TablePermisosAsignados from "@/components/permisos/TablePermisosAsignados";
 
 interface Props {
   data: {

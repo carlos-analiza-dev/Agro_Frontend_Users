@@ -27,7 +27,7 @@ import { CrearTipoProducto } from "@/apis/tipo-producto/accions/crear-tipo-produ
 interface Props {
   tipoProducto?: TipoProducto | null;
   setOpenModal: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 const FormTiposProductos = ({
@@ -297,7 +297,7 @@ const FormTiposProductos = ({
         <Button
           type="button"
           variant="outline"
-          onClick={() => setOpenModal(false)}
+          onClick={() => onSuccess()}
           disabled={isSubmitting}
         >
           Cancelar

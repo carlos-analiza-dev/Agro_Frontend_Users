@@ -38,6 +38,8 @@ import {
   Scale,
   PawPrint,
   Shirt,
+  DollarSign,
+  Bandage,
 } from "lucide-react";
 
 export const navItems = [
@@ -101,6 +103,21 @@ export const navItems = [
         icon: Scale,
       },
       { name: "Roles", href: "/roles-admin", icon: UserCog },
+    ],
+  },
+  {
+    category: "Paquetes",
+    items: [
+      {
+        name: "Paquetes",
+        href: "/paquetes",
+        icon: Bandage,
+      },
+      {
+        name: "Precios",
+        href: "/precios-paquetes",
+        icon: DollarSign,
+      },
     ],
   },
   {

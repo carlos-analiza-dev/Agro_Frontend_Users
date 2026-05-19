@@ -1,4 +1,7 @@
-import { EditarPedido } from "@/apis/pedidos/accions/editar-pedido";
+import {
+  EditarAdminPedido,
+  EditarPedido,
+} from "@/apis/pedidos/accions/editar-pedido";
 import {
   CrearPedidoInterface,
   EstadoPedido,
@@ -43,9 +46,10 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import MapaUbicacion from "./MapaUbicacion";
+import FormFacturarDesdePedido from "./FormFacturarDesdePedido";
 
 interface Props {
   pedido: Pedido;
@@ -58,7 +62,7 @@ const PedidoCard = ({ pedido, user }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<DialogType>(null);
   const [mostrarImpuestos, setMostrarImpuestos] = useState(false);
-  const queryClient = useQueryClient();
+  const [showFacturaForm, setShowFacturaForm] = useState(false);
   const simbolo = user?.pais.simbolo_moneda || "$";
 
   const getEstadoBadge = (estado: string) => {
@@ -76,13 +80,8 @@ const PedidoCard = ({ pedido, user }: Props) => {
   };
 
   const mutationEdit = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<CrearPedidoInterface>;
-    }) => EditarPedido(id, data),
+    mutationFn: ({ id, estado }: { id: string; estado: EstadoPedido }) =>
+      EditarAdminPedido(id, estado),
   });
 
   const openDialog = (type: DialogType) => {
@@ -119,7 +118,7 @@ const PedidoCard = ({ pedido, user }: Props) => {
     }
 
     mutationEdit.mutate(
-      { id: pedido.id, data: { estado: nuevoEstado } },
+      { id: pedido.id, estado: nuevoEstado },
       {
         onSuccess: () => {
           toast.success(mensajeExito);
@@ -133,11 +132,11 @@ const PedidoCard = ({ pedido, user }: Props) => {
           if (isAxiosError(error)) {
             toast.error(
               error?.response?.data?.message ||
-                `Error al ${dialogType} el pedido`
+                `Error al ${dialogType} el pedido`,
             );
           }
         },
-      }
+      },
     );
   };
 
@@ -529,7 +528,7 @@ const PedidoCard = ({ pedido, user }: Props) => {
             {pedido.estado === "procesado" && (
               <>
                 <Button
-                  onClick={() => openDialog("facturar")}
+                  onClick={() => setShowFacturaForm(true)}
                   variant="default"
                   size="sm"
                   className="bg-green-600 hover:bg-green-700"
@@ -615,6 +614,34 @@ const PedidoCard = ({ pedido, user }: Props) => {
                 : dialogConfig.buttonText}
             </AlertDialogAction>
           </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showFacturaForm} onOpenChange={setShowFacturaForm}>
+        <AlertDialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-end">
+            <AlertDialogCancel onClick={() => setShowFacturaForm(false)}>
+              ✕
+            </AlertDialogCancel>
+          </div>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Generar Factura desde Pedido</AlertDialogTitle>
+            <AlertDialogDescription>
+              Complete los detalles de la factura. Los datos del pedido se han
+              precargado automáticamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <FormFacturarDesdePedido
+            pedido={pedido}
+            onSuccess={() => {
+              setShowFacturaForm(false);
+              // Opcional: Actualizar el estado del pedido a facturado
+              // Podrías llamar a la mutación para actualizar el estado aquí
+            }}
+            onCancel={() => setShowFacturaForm(false)}
+            simbolo={simbolo}
+          />
         </AlertDialogContent>
       </AlertDialog>
     </>
