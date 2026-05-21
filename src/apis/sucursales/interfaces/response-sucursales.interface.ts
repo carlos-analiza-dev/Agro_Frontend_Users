@@ -16,12 +16,14 @@ export interface Sucursal {
   municipioId: string;
   gerenteId: string;
   isActive: boolean;
+  longitud: number;
+  latitud: number;
   createdAt: Date;
   updatedAt: Date;
   pais: Pais;
   departamento: Departamento;
   municipio: Departamento;
-  gerente: Gerente;
+  gerente?: Gerente | null;
 }
 
 export interface Departamento {

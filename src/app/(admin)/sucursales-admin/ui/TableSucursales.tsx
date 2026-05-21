@@ -33,6 +33,7 @@ import {
   Phone,
   User,
   XCircle,
+  UserCircle,
 } from "lucide-react";
 import React, { useState } from "react";
 import FormSucursal from "./FormSucursal";
@@ -78,7 +79,7 @@ const TableSucursales = ({ filteredSucursales, isLoading }: Props) => {
         municipioId: sucursalEstado.municipio.id,
         departamentoId: sucursalEstado.departamento.id,
         paisId: sucursalEstado.pais.id,
-        gerenteId: sucursalEstado.gerente.id,
+        gerenteId: sucursalEstado.gerente?.id || "",
         isActive: nuevoEstado,
       };
 
@@ -102,7 +103,7 @@ const TableSucursales = ({ filteredSucursales, isLoading }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de cambiar el estado de la sucursal. Inténtalo de nuevo."
+          "Hubo un error al momento de cambiar el estado de la sucursal. Inténtalo de nuevo.",
         );
       }
     },
@@ -188,24 +189,52 @@ const TableSucursales = ({ filteredSucursales, isLoading }: Props) => {
                     </div>
                   </div>
                 </TableCell>
+
                 <TableCell className="text-center">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{sucursal.gerente.name}</span>
-                  </div>
+                  {sucursal.gerente ? (
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{sucursal.gerente.name}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <UserCircle className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-500">Sin gerente</span>
+                    </div>
+                  )}
                 </TableCell>
+
                 <TableCell className="text-center">
-                  <div className="space-y-1 text-sm text-center">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-3 w-3" />
-                      {sucursal.gerente.telefono}
+                  {sucursal.gerente ? (
+                    <div className="space-y-1 text-sm text-center">
+                      {sucursal.gerente.telefono && (
+                        <div className="flex items-center gap-2 justify-center">
+                          <Phone className="h-3 w-3" />
+                          <span className="text-xs">
+                            {sucursal.gerente.telefono}
+                          </span>
+                        </div>
+                      )}
+                      {sucursal.gerente.email && (
+                        <div className="flex items-center gap-2 justify-center">
+                          <Mail className="h-3 w-3" />
+                          <span className="text-xs">
+                            {sucursal.gerente.email}
+                          </span>
+                        </div>
+                      )}
+                      {!sucursal.gerente.telefono &&
+                        !sucursal.gerente.email && (
+                          <span className="text-xs text-gray-500">
+                            Sin información
+                          </span>
+                        )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-3 w-3" />
-                      {sucursal.gerente.email}
-                    </div>
-                  </div>
+                  ) : (
+                    <span className="text-xs text-gray-500">-</span>
+                  )}
                 </TableCell>
+
                 <TableCell className="text-center">
                   <Badge variant={sucursal.isActive ? "default" : "secondary"}>
                     {sucursal.isActive ? "Activa" : "Inactiva"}

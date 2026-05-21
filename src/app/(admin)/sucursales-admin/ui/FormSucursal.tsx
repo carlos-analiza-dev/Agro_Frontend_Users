@@ -14,17 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { tiposSucursal } from "@/helpers/data/tiposSucursales";
 import useGetDepartamentosByPais from "@/hooks/departamentos/useGetDepartamentosByPais";
 import useGetMunicipiosActivosByDepto from "@/hooks/municipios/useGetMunicipiosActivosByDepto";
-import useGetVeterinarios from "@/hooks/users/useGetVeterinarios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import usePaises from "@/hooks/paises/usePaises";
+import { GoogleAddressInput } from "@/components/location/GoogleAddressInput";
+import useGetGerentes from "@/hooks/users/useGetGerentes";
 
 interface Props {
   editSucursal?: Sucursal | null;
@@ -37,9 +37,13 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
   const queryClient = useQueryClient();
   const { data: paises, isLoading: cargandoPaises } = usePaises();
   const [paisSeleccionado, setPaisSeleccionado] = React.useState(paisId);
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const { data: departamentos, isLoading: cargandoDepartamentos } =
     useGetDepartamentosByPais(paisSeleccionado || "");
-  const { data: gerentes } = useGetVeterinarios();
+  const { data: gerentes } = useGetGerentes();
   const [departamentoSeleccionado, setDepartamentoSeleccionado] =
     React.useState("");
   const { data: municipios, isLoading: cargandoMunicipios } =
@@ -82,6 +86,13 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
       });
       setPaisSeleccionado(editSucursal.pais.id);
       setDepartamentoSeleccionado(editSucursal.departamento.id);
+
+      if (editSucursal.latitud && editSucursal.longitud) {
+        setCoordinates({
+          lat: editSucursal.latitud,
+          lng: editSucursal.longitud,
+        });
+      }
     } else {
       setValue("paisId", paisId);
       setPaisSeleccionado(paisId);
@@ -118,7 +129,7 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear la sucursal. Inténtalo de nuevo."
+          "Hubo un error al momento de crear la sucursal. Inténtalo de nuevo.",
         );
       }
     },
@@ -145,7 +156,7 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar la sucursal. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar la sucursal. Inténtalo de nuevo.",
         );
       }
     },
@@ -154,8 +165,17 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
   const onSubmit = (data: CrearSucursaleInterface) => {
     data.paisId = paisSeleccionado || paisId || "";
 
+    if (coordinates) {
+      data.latitud = coordinates.lat;
+      data.longitud = coordinates.lng;
+    }
+
     if (isEdit) {
-      mutationUpdate.mutate(data);
+      mutationUpdate.mutate({
+        ...data,
+        latitud: Number(data.latitud),
+        longitud: Number(data.longitud),
+      });
     } else {
       mutation.mutate(data);
     }
@@ -326,19 +346,24 @@ const FormSucursal = ({ onSucces, editSucursal, isEdit, paisId }: Props) => {
       </div>
 
       <div className="space-y-1">
-        <Label className="font-bold">Dirección*</Label>
-        <Textarea
-          {...register("direccion_complemento", {
-            required: "El campo dirección es requerido",
-          })}
+        <GoogleAddressInput
+          value={watch("direccion_complemento") || ""}
+          onChange={(address, lat, lng) => {
+            setValue("direccion_complemento", address);
+            if (lat && lng) {
+              setCoordinates({ lat, lng });
+            }
+          }}
+          onCoordinatesChange={(lat, lng) => {
+            setCoordinates({ lat, lng });
+          }}
           placeholder="Escriba la dirección completa de la sucursal"
-          rows={3}
+          label="Dirección*"
+          required={true}
+          error={errors.direccion_complemento?.message as string}
+          initialLat={editSucursal?.latitud}
+          initialLng={editSucursal?.longitud}
         />
-        {errors.direccion_complemento && (
-          <p className="text-sm font-medium text-red-500">
-            {errors.direccion_complemento.message as string}
-          </p>
-        )}
       </div>
 
       <div className="space-y-1">

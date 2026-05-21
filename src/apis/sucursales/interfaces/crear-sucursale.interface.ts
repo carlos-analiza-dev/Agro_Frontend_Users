@@ -5,6 +5,8 @@ export interface CrearSucursaleInterface {
   municipioId: string;
   departamentoId: string;
   paisId: string;
+  latitud?: number;
+  longitud?: number;
   gerenteId: string;
   isActive?: boolean;
 }
