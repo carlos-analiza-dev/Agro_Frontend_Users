@@ -1,5 +1,3 @@
-import { TipoEntrega } from "./crear-pedido.interface";
-
 export interface ResponsePedidosInterface {
   total: number;
   pedidos: Pedido[];
@@ -8,7 +6,6 @@ export interface ResponsePedidosInterface {
 export interface Pedido {
   id: string;
   id_cliente: string;
-  id_sucursal: string;
   sub_total: string;
   importe_exento: string;
   importe_exonerado: string;
@@ -21,13 +18,12 @@ export interface Pedido {
   direccion_entrega: string;
   latitud: null | string;
   longitud: null | string;
-  tipo_entrega: TipoEntrega;
+  tipo_entrega: string;
   costo_delivery: string;
   nombre_finca: null | string;
   created_at: string;
   updated_at: string;
   cliente: Cliente;
-  sucursal: Sucursal;
   detalles: Detalle[];
 }
 
@@ -79,10 +75,12 @@ export interface Detalle {
   id: string;
   id_pedido: string;
   id_producto: string;
+  id_sucursal: string;
   precio: string;
   cantidad: number;
   total: string;
   producto: Producto;
+  sucursal: Sucursal;
 }
 
 export interface Producto {
@@ -117,6 +115,8 @@ export interface Sucursal {
   paisId: string;
   departamentoId: string;
   municipioId: string;
+  latitud: null | string;
+  longitud: null | string;
   gerenteId: string;
   isActive: boolean;
   createdAt: Date;

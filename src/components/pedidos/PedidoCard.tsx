@@ -7,7 +7,10 @@ import {
   EstadoPedido,
   TipoEntrega,
 } from "@/apis/pedidos/interface/crear-pedido.interface";
-import { Pedido } from "@/apis/pedidos/interface/response-pedidos.interface";
+import {
+  Detalle,
+  Pedido,
+} from "@/apis/pedidos/interface/response-pedidos.interface";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,11 +48,13 @@ import {
   User as UserIcon,
   Phone,
   Mail,
+  AlertTriangleIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import MapaUbicacion from "./MapaUbicacion";
 import FormFacturarDesdePedido from "./FormFacturarDesdePedido";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 interface Props {
   pedido: Pedido;
@@ -180,9 +185,28 @@ const PedidoCard = ({ pedido, user }: Props) => {
 
   const dialogConfig = getDialogConfig();
 
+  const sucursalesUnicas = Array.from(
+    new Map(pedido.detalles.map((d) => [d.sucursal.id, d.sucursal])).values(),
+  );
+
+  const sucursalesIds = pedido.detalles.map((sucs) => sucs.sucursal.id);
+  const esMismaSucursal = new Set(sucursalesIds).size === 1;
+
   return (
     <>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+        {!esMismaSucursal && (
+          <div className="w-full flex justify-center">
+            <Alert className=" border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50">
+              <AlertTriangleIcon />
+              <AlertTitle>Pedido Especial</AlertTitle>
+              <AlertDescription>
+                Este pedido cuenta con productos de sucursales diferentes, se da
+                un periodo de 3 a 5 dias habiles para enviarse.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
         <CardHeader className="bg-gray-50 border-b">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
@@ -255,13 +279,20 @@ const PedidoCard = ({ pedido, user }: Props) => {
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-gray-900">Sucursal</h3>
-                  <p className="text-sm text-gray-600">
-                    {pedido.sucursal.nombre}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {pedido.sucursal.direccion_complemento}
-                  </p>
+                  <h3 className="font-semibold text-gray-900">Sucursales</h3>
+
+                  <div>
+                    {sucursalesUnicas.map((sucursal) => (
+                      <div key={sucursal.id}>
+                        <p className="text-sm text-gray-600">
+                          {sucursal.nombre}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {sucursal.direccion_complemento}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -349,7 +380,7 @@ const PedidoCard = ({ pedido, user }: Props) => {
               </h3>
 
               <div className="space-y-3">
-                {pedido.detalles.map((detalle: any) => (
+                {pedido.detalles.map((detalle: Detalle) => (
                   <div
                     key={detalle.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -358,14 +389,16 @@ const PedidoCard = ({ pedido, user }: Props) => {
                       <h4 className="font-medium text-gray-900">
                         {detalle.producto.nombre}
                       </h4>
-                      <p className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500">
                         {detalle.producto.atributos && (
                           <span className="block text-xs">
                             {detalle.producto.atributos}
                           </span>
                         )}
-                        <span>Código: {detalle.producto.codigo}</span>
-                      </p>
+
+                        <p>Código: {detalle.producto.codigo}</p>
+                        <p>Sucursal: {detalle.sucursal.nombre}</p>
+                      </div>
                     </div>
 
                     <div className="text-right">
@@ -636,8 +669,6 @@ const PedidoCard = ({ pedido, user }: Props) => {
             pedido={pedido}
             onSuccess={() => {
               setShowFacturaForm(false);
-              // Opcional: Actualizar el estado del pedido a facturado
-              // Podrías llamar a la mutación para actualizar el estado aquí
             }}
             onCancel={() => setShowFacturaForm(false)}
             simbolo={simbolo}

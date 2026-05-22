@@ -40,6 +40,7 @@ import {
   Shirt,
   DollarSign,
   Bandage,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export const navItems = [
@@ -117,6 +118,21 @@ export const navItems = [
         name: "Precios",
         href: "/precios-paquetes",
         icon: DollarSign,
+      },
+    ],
+  },
+  {
+    category: "Lotes",
+    items: [
+      {
+        name: "Lotes",
+        href: "/lotes",
+        icon: Package,
+      },
+      {
+        name: "Traslados",
+        href: "/lotes-traslados",
+        icon: ArrowLeftRight,
       },
     ],
   },
