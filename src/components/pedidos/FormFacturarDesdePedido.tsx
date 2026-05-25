@@ -37,6 +37,7 @@ interface Props {
   onSuccess: () => void;
   onCancel: () => void;
   simbolo: string;
+  pending: boolean;
 }
 
 const FormFacturarDesdePedido = ({
@@ -44,6 +45,7 @@ const FormFacturarDesdePedido = ({
   onSuccess,
   onCancel,
   simbolo,
+  pending,
 }: Props) => {
   const { user } = useAuthStore();
   const paisId = user?.pais.id || "";
@@ -379,7 +381,7 @@ const FormFacturarDesdePedido = ({
           variant="outline"
           onClick={onCancel}
           size="lg"
-          disabled={isLoading}
+          disabled={isLoading && pending}
         >
           Cancelar
         </Button>

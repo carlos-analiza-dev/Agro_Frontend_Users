@@ -91,7 +91,7 @@ const FormTransferirProducto = ({ lote, onSucces, paisId }: Props) => {
 
       queryClient.invalidateQueries({ queryKey: ["lotes-sucursal"] });
       queryClient.invalidateQueries({ queryKey: ["lotes"] });
-
+      queryClient.invalidateQueries({ queryKey: ["movimientos-inventario"] });
       reset();
       if (onSucces) {
         onSucces();

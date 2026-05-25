@@ -24,6 +24,7 @@ export interface Pedido {
   created_at: string;
   updated_at: string;
   cliente: Cliente;
+  sucursal: Sucursal;
   detalles: Detalle[];
 }
 

@@ -59,14 +59,13 @@ const LotesPage = () => {
 
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const {
-    data: lotesData,
-    isLoading,
-    refetch,
-  } = useGetLotesBySucursal(selectedSucursal, {
-    limit: itemsPerPage,
-    offset: offset,
-  });
+  const { data: lotesData, isLoading } = useGetLotesBySucursal(
+    selectedSucursal,
+    {
+      limit: itemsPerPage,
+      offset: offset,
+    },
+  );
 
   const lotes = lotesData?.lotes || [];
   const totalItems = lotesData?.total || 0;
@@ -91,16 +90,11 @@ const LotesPage = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    refetch();
   };
 
   const handleSucursalChange = (value: string) => {
     setSelectedSucursal(value);
     setCurrentPage(1);
-  };
-
-  const handleRefresh = () => {
-    refetch();
   };
 
   const totalProductos = filteredLotes.length;
@@ -121,15 +115,6 @@ const LotesPage = () => {
             Administra el inventario de productos por sucursal
           </p>
         </div>
-        <Button
-          onClick={handleRefresh}
-          variant="outline"
-          size="sm"
-          className="w-full sm:w-auto"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Actualizar
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowLeftRight } from "lucide-react";
-import { useState } from "react";
 
 interface Props {
   filteredLotes: Lote[];

@@ -1,9 +1,5 @@
+import { EditarAdminPedido } from "@/apis/pedidos/accions/editar-pedido";
 import {
-  EditarAdminPedido,
-  EditarPedido,
-} from "@/apis/pedidos/accions/editar-pedido";
-import {
-  CrearPedidoInterface,
   EstadoPedido,
   TipoEntrega,
 } from "@/apis/pedidos/interface/crear-pedido.interface";
@@ -34,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/helpers/funciones/formatCurrency";
 import { formatDate } from "@/helpers/funciones/formatDate";
 import { User } from "@/interfaces/auth/user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import {
   Calendar,
@@ -55,6 +51,7 @@ import { toast } from "react-toastify";
 import MapaUbicacion from "./MapaUbicacion";
 import FormFacturarDesdePedido from "./FormFacturarDesdePedido";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import LoaderComponents from "../generics/LoaderComponents";
 
 interface Props {
   pedido: Pedido;
@@ -95,8 +92,10 @@ const PedidoCard = ({ pedido, user }: Props) => {
   };
 
   const closeDialog = () => {
-    setDialogOpen(false);
-    setDialogType(null);
+    if (!mutationEdit.isPending) {
+      setDialogOpen(false);
+      setDialogType(null);
+    }
   };
 
   const handleCambiarEstado = () => {
@@ -313,6 +312,28 @@ const PedidoCard = ({ pedido, user }: Props) => {
                       Finca: {pedido.nombre_finca}
                     </p>
                   )}
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                  <UserIcon className="h-4 w-4" />
+                  Información de Sucursal Destino
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="font-medium text-blue-700">Nombre:</span>
+                    <p className="text-blue-900">{pedido.sucursal.nombre}</p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium text-blue-700">
+                      Direccion:
+                    </span>
+                    <p className="text-blue-900">
+                      {pedido.sucursal.direccion_complemento}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -672,6 +693,7 @@ const PedidoCard = ({ pedido, user }: Props) => {
             }}
             onCancel={() => setShowFacturaForm(false)}
             simbolo={simbolo}
+            pending={mutationEdit.isPending}
           />
         </AlertDialogContent>
       </AlertDialog>
