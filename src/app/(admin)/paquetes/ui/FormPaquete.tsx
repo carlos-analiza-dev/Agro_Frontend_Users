@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { ResponsePaquetesInterface } from "@/apis/paquetes/interfaces/response-paquetes.interface";
 import { EditarPaquete } from "@/apis/paquetes/accions/editar-paquete";
 import { IngresarPaquetes } from "@/apis/paquetes/accions/crear-paquete";
+import { getTipoText } from "@/helpers/funciones/paquetes/tipoPaquetes";
 
 interface Props {
   paquete?: ResponsePaquetesInterface | null;
@@ -49,6 +50,7 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
       maxAnimales: 5,
       maxTrabajadores: 1,
       isActive: true,
+      ecommerce: true,
     },
   });
 
@@ -68,6 +70,10 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
         "isActive",
         paquete.isActive !== undefined ? paquete.isActive : true,
       );
+      setValue(
+        "ecommerce",
+        paquete.ecommerce !== undefined ? paquete.ecommerce : true,
+      );
     } else {
       reset({
         nombre: "",
@@ -76,6 +82,7 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
         maxAnimales: 5,
         maxTrabajadores: 1,
         isActive: true,
+        ecommerce: true,
       });
     }
     setIsLoading(false);
@@ -112,21 +119,6 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
       } else {
         toast.error("Error inesperado. Contacte al administrador");
       }
-    }
-  };
-
-  const getTipoText = (tipo: TipoPaquete) => {
-    switch (tipo) {
-      case TipoPaquete.FREE:
-        return "Gratuito";
-      case TipoPaquete.BASICO:
-        return "Básico";
-      case TipoPaquete.PREMIUM:
-        return "Premium";
-      case TipoPaquete.EMPRESARIAL:
-        return "Empresarial";
-      default:
-        return tipo;
     }
   };
 
@@ -321,6 +313,22 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
               </p>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">
+          <div className="space-y-0.5">
+            <Label className="text-base">¿Incluye Ecommerce?</Label>
+            <p className="text-sm text-muted-foreground">
+              {watch("ecommerce")
+                ? "El paquete incluye Ecommerce"
+                : "El paquete no incluye Ecommerce"}
+            </p>
+          </div>
+          <Switch
+            checked={watch("ecommerce")}
+            onCheckedChange={(checked) => setValue("ecommerce", checked)}
+            disabled={isSubmitting}
+          />
         </div>
 
         <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-900">

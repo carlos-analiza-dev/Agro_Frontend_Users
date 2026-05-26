@@ -8,6 +8,7 @@ export interface ResponsePaquetesInterface {
   maxAnimales: number;
   maxTrabajadores: number;
   isActive: boolean;
+  ecommerce: boolean;
   preciosPorPais: PreciosPorPai[];
   permisos: PermisoElement[];
 }

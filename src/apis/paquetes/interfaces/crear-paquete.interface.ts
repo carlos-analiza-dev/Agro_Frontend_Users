@@ -7,4 +7,5 @@ export interface CrearPaqueteInterface {
   maxAnimales: number;
   maxTrabajadores: number;
   isActive: boolean;
+  ecommerce: boolean;
 }
