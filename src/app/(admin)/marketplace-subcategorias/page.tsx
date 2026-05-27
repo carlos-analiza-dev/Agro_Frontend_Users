@@ -44,7 +44,7 @@ const SubCategoriasPageAdmin = () => {
   } = useGetSubCategorias({
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
-    is_market: false,
+    is_market: true,
   });
 
   const subcategorias = subcategoriasData?.data || [];
@@ -64,7 +64,7 @@ const SubCategoriasPageAdmin = () => {
   return (
     <div className="p-3 mx-auto">
       <div className="block md:flex justify-between items-center mb-8">
-        <TitlePages title="Administrar Sub Categorías" />
+        <TitlePages title="Market Place Sub Categorías" />
         <Button
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 w-full sm:w-auto"
@@ -114,6 +114,7 @@ const SubCategoriasPageAdmin = () => {
               setIsOpen(false);
               refetch();
             }}
+            isMarket={true}
           />
         </AlertDialogContent>
       </AlertDialog>

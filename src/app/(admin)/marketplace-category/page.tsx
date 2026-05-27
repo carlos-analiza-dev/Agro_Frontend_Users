@@ -1,15 +1,14 @@
 "use client";
-import useGetCategorias from "@/hooks/categorias/useGetCategorias";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import TitlePages from "@/components/generics/TitlePages";
-
-import SkeletonCategorias from "@/components/generics/SkeletonCategorias";
-import dynamic from "next/dynamic";
 import LoaderComponents from "@/components/generics/LoaderComponents";
-import Paginacion from "@/components/generics/Paginacion";
 import Modal from "@/components/generics/Modal";
+import SkeletonCategorias from "@/components/generics/SkeletonCategorias";
+import TitlePages from "@/components/generics/TitlePages";
+import { Button } from "@/components/ui/button";
+import useGetCategorias from "@/hooks/categorias/useGetCategorias";
+import { Plus } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import Paginacion from "@/components/generics/Paginacion";
 
 const FormCategorias = dynamic(
   () => import("@/components/categorias/FormCategorias"),
@@ -25,7 +24,7 @@ const CardCategorias = dynamic(
   },
 );
 
-const CategoriasPageAdmin = () => {
+const MarketPlaceCategoriasPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -33,7 +32,7 @@ const CategoriasPageAdmin = () => {
   const offset = (currentPage - 1) * itemsPerPage;
 
   const { data: categorias, isLoading } = useGetCategorias({
-    is_market: false,
+    is_market: true,
     limit: itemsPerPage,
     offset: offset,
   });
@@ -53,7 +52,7 @@ const CategoriasPageAdmin = () => {
   return (
     <div className="p-3 mx-auto">
       <div className="block md:flex justify-between items-center mb-8">
-        <TitlePages title="Administrar Categorías" />
+        <TitlePages title="MarketPlace Categorías" />
         <Button
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 w-full sm:w-auto"
@@ -93,10 +92,10 @@ const CategoriasPageAdmin = () => {
         title="Agregar Categoria"
         description="En esta sección podrás agregar nuevas categorías"
       >
-        <FormCategorias onSucces={() => setIsOpen(false)} isMarket={false} />
+        <FormCategorias onSucces={() => setIsOpen(false)} isMarket={true} />
       </Modal>
     </div>
   );
 };
 
-export default CategoriasPageAdmin;
+export default MarketPlaceCategoriasPage;

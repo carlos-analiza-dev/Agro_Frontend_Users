@@ -15,9 +15,10 @@ interface Props {
   editMarca?: Marca | null;
   isEdit?: boolean;
   onSucces: () => void;
+  isMarket?: boolean;
 }
 
-const FormMarcas = ({ onSucces, editMarca, isEdit }: Props) => {
+const FormMarcas = ({ onSucces, editMarca, isEdit, isMarket }: Props) => {
   const queryClient = useQueryClient();
 
   const {
@@ -57,7 +58,7 @@ const FormMarcas = ({ onSucces, editMarca, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear la marca. Inténtalo de nuevo."
+          "Hubo un error al momento de crear la marca. Inténtalo de nuevo.",
         );
       }
     },
@@ -84,7 +85,7 @@ const FormMarcas = ({ onSucces, editMarca, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar la marca. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar la marca. Inténtalo de nuevo.",
         );
       }
     },
@@ -94,7 +95,8 @@ const FormMarcas = ({ onSucces, editMarca, isEdit }: Props) => {
     if (isEdit) {
       mutationUpdate.mutate(data);
     } else {
-      mutation.mutate(data);
+      const market = isMarket ? true : false;
+      mutation.mutate({ ...data, is_market: market });
     }
   };
 

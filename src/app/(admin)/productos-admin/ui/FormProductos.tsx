@@ -46,9 +46,17 @@ const FormProductos = ({ onSuccess, editSubServicio, isEdit }: Props) => {
   const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] =
     useState<string>("");
 
-  const { data: marcasActivas } = useGetAllMarcas(10, 0);
+  const { data: marcasActivas } = useGetAllMarcas({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
   const { data: proveedoresActivos } = useGetProveedoresActivos();
-  const { data: categorias } = useGetCategorias();
+  const { data: categorias } = useGetCategorias({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
   const { data: impuestos } = useGetTaxesPais();
 
   const { data: subcategorias, refetch: refetchSubcategorias } =

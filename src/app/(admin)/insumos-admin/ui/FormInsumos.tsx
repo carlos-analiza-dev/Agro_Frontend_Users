@@ -41,7 +41,11 @@ const FormInsumos = ({ onSuccess, editInsumo, isEdit }: Props) => {
     formState: { errors },
   } = useForm<CrearInsumoInterface>();
 
-  const { data: marcas } = useGetAllMarcas(10, 0);
+  const { data: marcas } = useGetAllMarcas({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
   const { data: proveedores } = useGetProveedoresActivos();
 
   useEffect(() => {
@@ -78,7 +82,7 @@ const FormInsumos = ({ onSuccess, editInsumo, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear el insumo. Inténtalo de nuevo."
+          "Hubo un error al momento de crear el insumo. Inténtalo de nuevo.",
         );
       }
     },
@@ -105,7 +109,7 @@ const FormInsumos = ({ onSuccess, editInsumo, isEdit }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar el insumo. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar el insumo. Inténtalo de nuevo.",
         );
       }
     },

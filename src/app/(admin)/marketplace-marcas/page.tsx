@@ -30,8 +30,7 @@ const FormMarcas = dynamic(() => import("@/components/marcas/FormMarcas"), {
 const TableMarcas = dynamic(() => import("@/components/marcas/TableMarcas"), {
   loading: () => <TableUsersSkeleton />,
 });
-
-const MarcasAdminPage = () => {
+const MarketPlaceMarcasPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -43,7 +42,7 @@ const MarcasAdminPage = () => {
   const { data: marcas, isLoading } = useGetAllMarcas({
     limit: itemsPerPage,
     offset: offset,
-    is_market: false,
+    is_market: true,
   });
 
   const totalPages = marcas ? Math.ceil(marcas.total / itemsPerPage) : 0;
@@ -74,7 +73,7 @@ const MarcasAdminPage = () => {
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Gestión de Marcas</CardTitle>
+              <CardTitle>Market Place Marcas</CardTitle>
               <CardDescription>
                 Administra las marcas disponibles en el sistema. Total:{" "}
                 {marcas?.total || 0} marcas
@@ -123,11 +122,11 @@ const MarcasAdminPage = () => {
               En esta seccion podras agregar nuevas marcas
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <FormMarcas onSucces={() => setIsOpen(false)} />
+          <FormMarcas onSucces={() => setIsOpen(false)} isMarket={true} />
         </AlertDialogContent>
       </AlertDialog>
     </div>
   );
 };
 
-export default MarcasAdminPage;
+export default MarketPlaceMarcasPage;

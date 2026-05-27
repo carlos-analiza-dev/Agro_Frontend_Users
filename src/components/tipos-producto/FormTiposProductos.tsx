@@ -28,12 +28,14 @@ interface Props {
   tipoProducto?: TipoProducto | null;
   setOpenModal: (open: boolean) => void;
   onSuccess: () => void;
+  isMarket?: boolean;
 }
 
 const FormTiposProductos = ({
   tipoProducto,
   setOpenModal,
   onSuccess,
+  isMarket,
 }: Props) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +43,7 @@ const FormTiposProductos = ({
   const [allSubcategorias, setAllSubcategorias] = useState<any[]>([]);
   const [totalSubcategorias, setTotalSubcategorias] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const market = isMarket ? true : false;
 
   const {
     data: subcategoriasData,
@@ -49,6 +52,7 @@ const FormTiposProductos = ({
   } = useGetSubCategorias({
     limit: 10,
     offset: subcategoriaOffset,
+    is_market: market,
   });
 
   const {
@@ -108,7 +112,7 @@ const FormTiposProductos = ({
         await EditarTipoProducto(tipoProducto.id, data);
         toast.success("Tipo de producto actualizado correctamente");
       } else {
-        await CrearTipoProducto(data);
+        await CrearTipoProducto({ ...data, is_market: market });
         toast.success("Tipo de producto registrado correctamente");
       }
 

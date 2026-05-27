@@ -58,7 +58,11 @@ const InsumosAdminPage = () => {
 
   const marcaId = selectedMarca === "all" ? "" : selectedMarca;
 
-  const { data: marcas } = useGetAllMarcas(10, 0);
+  const { data: marcas } = useGetAllMarcas({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
   const { data: proveedores } = useGetProveedoresActivos();
 
   const offset = (currentPage - 1) * itemsPerPage;
@@ -68,7 +72,7 @@ const InsumosAdminPage = () => {
     offset,
     paisId,
     proveedorId,
-    marcaId
+    marcaId,
   );
 
   const insumos_total = insumos?.data.data || [];

@@ -1,39 +1,41 @@
-import { CrearSubCategoria } from "@/apis/subcategorias/accions/crear-subcategoria";
-import { ActualizarSubCategoria } from "@/apis/subcategorias/accions/update-subcategoria";
-import { CrearSubCatInterface } from "@/apis/subcategorias/interface/crear-subcategoria.interface";
+import { CrearCategoria } from "@/apis/categorias/accions/crear-categoria";
+import { ActualizarCategoria } from "@/apis/categorias/accions/update-categoria";
+import { CrearCatInterface } from "@/apis/categorias/interface/crear-categoria.interface";
 import {
-  ResponseSubcategorias,
-  SubCategoria,
-} from "@/apis/subcategorias/interface/get-subcategorias.interface";
+  Categoria,
+  ResponseCategoriasInterface,
+} from "@/apis/categorias/interface/response-categorias.interface";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import useGetCategorias from "@/hooks/categorias/useGetCategorias";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 interface Props {
-  editSubCategoria?: SubCategoria | null;
+  editCategoria?: Categoria | null;
   isEdit?: boolean;
   onSucces: () => void;
+  isMarket?: boolean;
 }
 
-const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
+const FormCategorias = ({
+  onSucces,
+  editCategoria,
+  isEdit,
+  isMarket,
+}: Props) => {
   const queryClient = useQueryClient();
-  const { data: categorias } = useGetCategorias();
 
   const {
     register,
@@ -41,24 +43,24 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<CrearSubCatInterface>();
+  } = useForm<CrearCatInterface>();
 
   useEffect(() => {
-    if (editSubCategoria && isEdit) {
+    if (editCategoria && isEdit) {
       reset({
-        nombre: editSubCategoria.nombre,
-        descripcion: editSubCategoria.descripcion,
-        categoriaId: editSubCategoria.categoria?.id,
-        is_active: editSubCategoria.is_active,
+        nombre: editCategoria.nombre,
+        descripcion: editCategoria.descripcion,
+        is_active: editCategoria.is_active,
+        tipo: editCategoria.tipo,
       });
     }
-  }, [editSubCategoria, isEdit, reset]);
+  }, [editCategoria, isEdit, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: CrearSubCatInterface) => CrearSubCategoria(data),
+    mutationFn: (data: CrearCatInterface) => CrearCategoria(data),
     onSuccess: () => {
-      toast.success("Sub Categoría creada exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["subcategorias"] });
+      toast.success("Categoría creada exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["categorias"] });
       reset();
       onSucces();
     },
@@ -69,23 +71,23 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
           ? messages[0]
           : typeof messages === "string"
             ? messages
-            : "Hubo un error al crear la subcategoría";
+            : "Hubo un error al crear la categoría";
 
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear la subcategoría. Inténtalo de nuevo."
+          "Hubo un error al momento de crear la categoría. Inténtalo de nuevo.",
         );
       }
     },
   });
 
   const mutationUpdate = useMutation({
-    mutationFn: (data: CrearSubCatInterface) =>
-      ActualizarSubCategoria(editSubCategoria?.id ?? "", data),
+    mutationFn: (data: CrearCatInterface) =>
+      ActualizarCategoria(editCategoria?.id ?? "", data),
     onSuccess: () => {
-      toast.success("Sub Categoría actualizada exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["subcategorias"] });
+      toast.success("Categoría actualizada exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["categorias"] });
       reset();
       onSucces();
     },
@@ -96,29 +98,30 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
           ? messages[0]
           : typeof messages === "string"
             ? messages
-            : "Hubo un error al actualizar la subcategoría";
+            : "Hubo un error al actualizar la categoría";
 
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar la subcategoría. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar la categoría. Inténtalo de nuevo.",
         );
       }
     },
   });
 
-  const onSubmit = (data: CrearSubCatInterface) => {
+  const onSubmit = (data: CrearCatInterface) => {
     if (isEdit) {
       mutationUpdate.mutate(data);
     } else {
-      mutation.mutate(data);
+      const market = isMarket ? true : false;
+      mutation.mutate({ ...data, is_market: market });
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1">
-        <Label className="font-bold">Nombre de la Sub Categoría*</Label>
+        <Label className="font-bold">Nombre de la Categoría*</Label>
         <Input
           {...register("nombre", { required: "El campo nombre es requerido" })}
           placeholder="Escriba el nombre de la categoría"
@@ -129,6 +132,7 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
           </p>
         )}
       </div>
+
       <div className="space-y-1">
         <Label className="font-bold">Descripción*</Label>
         <Textarea
@@ -143,37 +147,31 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
             {errors.descripcion.message as string}
           </p>
         )}
-      </div>{" "}
+      </div>
+
       <div className="space-y-1">
-        <Label className="font-bold">Categoria a la que pertenece*</Label>
+        <Label className="font-bold">Tipo de Categoría*</Label>
         <Select
-          onValueChange={(value) => setValue("categoriaId", value)}
-          defaultValue={editSubCategoria?.categoria?.id}
+          defaultValue={editCategoria?.tipo}
+          onValueChange={(value) =>
+            setValue("tipo", value as "Ganaderia" | "Agricultura")
+          }
         >
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona una categoria" />
+            <SelectValue placeholder="Seleccione el tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Categorias</SelectLabel>
-              {categorias && categorias.data.length > 0 ? (
-                categorias.data.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.nombre}
-                  </SelectItem>
-                ))
-              ) : (
-                <p>No se encontraron categorias</p>
-              )}
-            </SelectGroup>
+            <SelectItem value="Ganaderia">Ganadería</SelectItem>
+            <SelectItem value="Agricultura">Agricultura</SelectItem>
           </SelectContent>
         </Select>
-        {errors.categoriaId && (
+        {errors.tipo && (
           <p className="text-sm font-medium text-red-500">
-            {errors.categoriaId.message as string}
+            {errors.tipo.message as string}
           </p>
         )}
       </div>
+
       {isEdit && (
         <div className="space-y-1">
           <Label className="font-bold">Estado</Label>
@@ -190,6 +188,7 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
           </div>
         </div>
       )}
+
       <div className="flex justify-end pt-4">
         <Button
           type="submit"
@@ -220,9 +219,7 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
               {isEdit ? "Actualizando..." : "Creando..."}
             </span>
           ) : (
-            <span>
-              {isEdit ? "Actualizar Sub Categoría" : "Crear Sub Categoría"}
-            </span>
+            <span>{isEdit ? "Actualizar Categoría" : "Crear Categoría"}</span>
           )}
         </Button>
       </div>
@@ -230,4 +227,4 @@ const FormSubCategoria = ({ onSucces, editSubCategoria, isEdit }: Props) => {
   );
 };
 
-export default FormSubCategoria;
+export default FormCategorias;

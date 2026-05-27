@@ -152,6 +152,31 @@ export const navItems = [
     ],
   },
   {
+    category: "MarketPlace",
+    items: [
+      {
+        name: "Categorias",
+        href: "/marketplace-category",
+        icon: Layers3,
+      },
+      {
+        name: "Sub Categorias",
+        href: "/marketplace-subcategorias",
+        icon: Boxes,
+      },
+      {
+        name: "Marcas",
+        href: "/marketplace-marcas",
+        icon: Tag,
+      },
+      {
+        name: "Tipo Producto",
+        href: "/marketplace-tipos",
+        icon: Shirt,
+      },
+    ],
+  },
+  {
     category: "Pedidos",
     items: [
       {

@@ -19,7 +19,7 @@ import DetailsCard from "@/components/tipos-producto/DetailsCard";
 import TableTipos from "@/components/tipos-producto/TableTipos";
 import FormTiposProductos from "@/components/tipos-producto/FormTiposProductos";
 
-const TiposProductosPage = () => {
+const MarketPlaceTiposPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
@@ -32,7 +32,7 @@ const TiposProductosPage = () => {
   } = useGetTiposProducto({
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
-    is_market: false,
+    is_market: true,
   });
 
   const tipos = tiposData?.tipos || [];
@@ -180,10 +180,11 @@ const TiposProductosPage = () => {
           }}
           setOpenModal={setOpenModal}
           tipoProducto={selectedTipo}
+          isMarket={true}
         />
       </Modal>
     </div>
   );
 };
 
-export default TiposProductosPage;
+export default MarketPlaceTiposPage;

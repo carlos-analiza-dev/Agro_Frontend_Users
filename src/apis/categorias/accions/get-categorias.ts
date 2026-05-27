@@ -3,11 +3,14 @@ import {
   Categoria,
   ResponseCategoriasInterface,
 } from "../interface/response-categorias.interface";
+import { FiltersCategorias } from "@/interfaces/filters/categorias/filter-categorias.interface";
 
-export const ObtenerCategorias = async () => {
+export const ObtenerCategorias = async (filters?: FiltersCategorias) => {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/categorias`;
 
-  const response = await veterinariaAPI.get<ResponseCategoriasInterface>(url);
+  const response = await veterinariaAPI.get<ResponseCategoriasInterface>(url, {
+    params: filters,
+  });
   return response.data;
 };
 

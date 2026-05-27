@@ -11,5 +11,6 @@ export const ObtenerTiposProducto = async (filters?: PaginationFilter) => {
       params: filters,
     },
   );
+
   return response.data;
 };

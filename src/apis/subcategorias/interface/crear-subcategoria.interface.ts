@@ -4,4 +4,5 @@ export interface CrearSubCatInterface {
   codigo: string;
   categoriaId: string;
   is_active?: boolean;
+  is_market?: boolean;
 }

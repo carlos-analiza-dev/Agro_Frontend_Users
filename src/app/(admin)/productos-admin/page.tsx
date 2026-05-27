@@ -55,8 +55,16 @@ const PageProductosAdmin = () => {
     proveedor: proveedorId,
   });
 
-  const { data: marcas } = useGetAllMarcas(10, 0);
-  const { data: categorias } = useGetCategorias();
+  const { data: marcas } = useGetAllMarcas({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
+  const { data: categorias } = useGetCategorias({
+    limit: 100,
+    offset: 0,
+    is_market: false,
+  });
   const { data: proveedores } = useGetProveedoresActivos();
 
   const productos = data?.data.productos || [];

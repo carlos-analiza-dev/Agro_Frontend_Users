@@ -3,4 +3,5 @@ export interface CrearCatInterface {
   descripcion: string;
   tipo: string;
   is_active?: boolean;
+  is_market?: boolean;
 }

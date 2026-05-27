@@ -11,6 +11,7 @@ export interface Categoria {
   tipo: string;
   descripcion: string;
   is_active: boolean;
+  is_market: boolean;
   created_at: Date;
   updated_at: Date;
   created_by: AtedBy;
