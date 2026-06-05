@@ -51,6 +51,7 @@ const FormCategorias = ({
         nombre: editCategoria.nombre,
         descripcion: editCategoria.descripcion,
         is_active: editCategoria.is_active,
+        destacada: editCategoria.destacada,
         tipo: editCategoria.tipo,
       });
     }
@@ -184,6 +185,23 @@ const FormCategorias = ({
             />
             <Label htmlFor="is_active" className="cursor-pointer">
               Activa
+            </Label>
+          </div>
+        </div>
+      )}
+
+      {isMarket && isEdit && (
+        <div className="space-y-1">
+          <Label className="font-bold">Destacada</Label>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="destacada"
+              {...register("destacada")}
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <Label htmlFor="destacada" className="cursor-pointer">
+              Destacada
             </Label>
           </div>
         </div>

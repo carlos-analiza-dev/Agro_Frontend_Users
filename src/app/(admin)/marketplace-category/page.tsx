@@ -65,7 +65,11 @@ const MarketPlaceCategoriasPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {categorias && categorias.data.length > 0 ? (
           categorias.data.map((categoria) => (
-            <CardCategorias key={categoria.id} categoria={categoria} />
+            <CardCategorias
+              key={categoria.id}
+              categoria={categoria}
+              isMarket={true}
+            />
           ))
         ) : (
           <div className="col-span-full text-center py-12">
