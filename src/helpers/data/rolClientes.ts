@@ -9,4 +9,8 @@ export const rolTrabajadorOptions = [
     value: TipoCliente.TRABAJADOR,
     label: "Trabajador",
   },
+  {
+    value: TipoCliente.SUPERVISOR,
+    label: "Supervisor",
+  },
 ];

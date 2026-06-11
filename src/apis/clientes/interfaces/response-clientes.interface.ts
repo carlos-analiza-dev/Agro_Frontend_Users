@@ -19,6 +19,8 @@ export interface Cliente {
   pais: Pais;
   departamento: Departamento;
   municipio: Departamento;
+  tienePaqueteActivo: boolean;
+  paqueteActivo: PaqueteActivo;
 }
 
 export interface Departamento {
@@ -36,4 +38,9 @@ export interface Pais {
   simbolo_moneda: string;
   nombre_documento: string;
   isActive: boolean;
+}
+
+export interface PaqueteActivo {
+  id: string;
+  nombre: string;
 }

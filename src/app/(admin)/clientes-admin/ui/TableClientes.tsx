@@ -40,6 +40,8 @@ import { EliminarPermisoByCliente } from "@/apis/permisos-clientes/accions/elimi
 import TablePermisosCliente from "@/components/permisos/TablePermisosCliente";
 import ResumenPermiso from "@/components/permisos/ResumenPermiso";
 import TablePermisosAsignados from "@/components/permisos/TablePermisosAsignados";
+import { Badge } from "@/components/ui/badge";
+import { TipoCliente } from "@/interfaces/enums/clientes.enums";
 
 interface Props {
   data: {
@@ -202,7 +204,6 @@ const TableClientes = ({ data, isLoading }: Props) => {
             <TableHead className="text-center">Identificación</TableHead>
             <TableHead className="text-center">Dirección</TableHead>
             <TableHead className="text-center">Rol</TableHead>
-            <TableHead className="text-center">Permisos</TableHead>
             <TableHead className="text-center">Activo</TableHead>
             <TableHead className="text-center">Acciones</TableHead>
           </TableRow>
@@ -230,16 +231,20 @@ const TableClientes = ({ data, isLoading }: Props) => {
                       {user.direccion}
                     </TableCell>
                     <TableCell className="text-center">
-                      {user.rol.toLocaleLowerCase()}
+                      <div className="block space-y-2">
+                        <p>{user.rol.toLocaleLowerCase()}</p>
+                        {user.rol === TipoCliente.PROPIETARIO && (
+                          <>
+                            {user.tienePaqueteActivo ? (
+                              <Badge>{user.paqueteActivo.nombre}</Badge>
+                            ) : (
+                              <Badge variant="destructive">Sin Paquete</Badge>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <p
-                        onClick={() => handleViewClienteId(user.id)}
-                        className="hover:underline cursor-pointer text-blue-600 font-medium"
-                      >
-                        Ver Permisos
-                      </p>
-                    </TableCell>
+
                     <TableCell className="text-center">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

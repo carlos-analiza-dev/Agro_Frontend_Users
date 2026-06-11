@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, User, X } from "lucide-react";
-import { Cliente } from "@/apis/clientes/interfaces/response-clientes.interface";
+import { Cliente } from "@/apis/clientes/interfaces/response-clientes-activos.interface";
 
 interface BuscadorClientesProps {
   value: string;
@@ -30,7 +30,7 @@ const BuscadorClientes = ({
     return clientes.filter(
       (cliente) =>
         cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cliente.identificacion.toLowerCase().includes(searchTerm.toLowerCase())
+        cliente.identificacion.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [clientes, searchTerm]);
 
