@@ -211,7 +211,7 @@ const NavBar = ({ handleLogout, setMobileSidebarOpen }: Props) => {
                   />
                 ) : (
                   <>
-                    <AvatarImage src="/avatars/user.png" alt="Usuario" />
+                    <AvatarImage src="/images/ProfileImage.png" alt="Usuario" />
                     <AvatarFallback>
                       <User className="h-4 w-4" />
                     </AvatarFallback>

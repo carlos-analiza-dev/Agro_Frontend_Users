@@ -41,6 +41,8 @@ import {
   DollarSign,
   Bandage,
   ArrowLeftRight,
+  PanelTop,
+  PanelBottom,
 } from "lucide-react";
 
 export const navItems = [
@@ -173,6 +175,21 @@ export const navItems = [
         name: "Tipo Producto",
         href: "/marketplace-tipos",
         icon: Shirt,
+      },
+    ],
+  },
+  {
+    category: "Anuncios",
+    items: [
+      {
+        name: "Banner Principal",
+        href: "/anuncios-principales",
+        icon: PanelTop,
+      },
+      {
+        name: "Banner Secundario",
+        href: "/anuncios-secundarios",
+        icon: PanelBottom,
       },
     ],
   },
