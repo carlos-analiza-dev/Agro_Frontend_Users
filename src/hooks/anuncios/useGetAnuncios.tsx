@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const useGetAnuncios = (filters?: PaginationFilter) => {
   return useQuery({
-    queryKey: ["anuncios"],
+    queryKey: ["anuncios", filters],
     queryFn: () => ObtenerAnuncios(filters),
     retry: 0,
     staleTime: 60 * 5 * 1000,
