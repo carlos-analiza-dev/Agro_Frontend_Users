@@ -4,6 +4,8 @@ import { ImageOff } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Anuncio } from "@/apis/anuncios/interfaces/response-anuncios.interface";
+import { formatDate } from "@/helpers/funciones/formatDate";
+import { formatDateLocal } from "@/helpers/funciones/formatDateOnly";
 
 interface Props {
   anuncio: Anuncio;
@@ -53,6 +55,18 @@ const AnunciosCard = ({ anuncio, handleEditAnuncio }: Props) => {
             </a>
           )}
         </div>
+        {anuncio.fechaInicio && anuncio.fechaFin ? (
+          <div className="mt-5">
+            <p>
+              De {formatDateLocal(anuncio.fechaInicio!)} a{" "}
+              {formatDateLocal(anuncio.fechaFin!)}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-5">
+            <p>No se ha establecido fecha para el anuncio</p>
+          </div>
+        )}
         <div className="mt-3">
           <Button onClick={() => handleEditAnuncio(anuncio)} className="w-full">
             Editar Anuncio

@@ -18,7 +18,7 @@ import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { X, Image as ImageIcon } from "lucide-react";
+import { X, Image as ImageIcon, Calendar } from "lucide-react";
 import Image from "next/image";
 import {
   Anuncio,
@@ -33,6 +33,8 @@ interface AnuncioFormData {
   esPrincipal?: boolean;
   mostrar?: boolean;
   etiqueta?: EtiquetaAnuncio;
+  fechaInicio?: string;
+  fechaFin?: string;
 }
 
 interface Props {
@@ -81,6 +83,15 @@ const AnunciosForm = ({ onSuccess, editAnuncio, isEdit }: Props) => {
 
   useEffect(() => {
     if (editAnuncio && isEdit) {
+      const formatDateForInput = (date?: string | Date) => {
+        if (!date) return undefined;
+        const d = new Date(date);
+
+        const offset = d.getTimezoneOffset();
+        const localDate = new Date(d.getTime() - offset * 60000);
+        return localDate.toISOString().slice(0, 16);
+      };
+
       reset({
         titulo: editAnuncio.titulo,
         descripcion: editAnuncio.descripcion,
@@ -88,6 +99,8 @@ const AnunciosForm = ({ onSuccess, editAnuncio, isEdit }: Props) => {
         esPrincipal: editAnuncio.esPrincipal,
         mostrar: editAnuncio.mostrar,
         etiqueta: editAnuncio.etiqueta as EtiquetaAnuncio,
+        fechaInicio: formatDateForInput(editAnuncio.fechaInicio),
+        fechaFin: formatDateForInput(editAnuncio.fechaFin),
       });
 
       if (editAnuncio.anucioImages) {
@@ -202,11 +215,27 @@ const AnunciosForm = ({ onSuccess, editAnuncio, isEdit }: Props) => {
     },
   });
 
+  const validateDates = (fechaInicio?: string, fechaFin?: string) => {
+    if (fechaInicio && fechaFin) {
+      const inicio = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+      if (fin <= inicio) {
+        toast.error("La fecha de fin debe ser posterior a la fecha de inicio");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const onSubmit = (data: AnuncioFormData) => {
+    if (!validateDates(data.fechaInicio, data.fechaFin)) {
+      return;
+    }
+
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && value !== "") {
         formData.append(key, value.toString());
       }
     });
@@ -223,6 +252,8 @@ const AnunciosForm = ({ onSuccess, editAnuncio, isEdit }: Props) => {
   };
 
   const watchEtiqueta = watch("etiqueta");
+  const watchFechaInicio = watch("fechaInicio");
+  const watchFechaFin = watch("fechaFin");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -315,6 +346,62 @@ const AnunciosForm = ({ onSuccess, editAnuncio, isEdit }: Props) => {
           </p>
         )}
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="font-bold">Fecha de Inicio</Label>
+          <div className="relative">
+            <Input
+              type="datetime-local"
+              {...register("fechaInicio")}
+              className="focus:ring-2 focus:ring-primary"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+          {errors.fechaInicio && (
+            <p className="text-sm font-medium text-red-500">
+              {errors.fechaInicio.message as string}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Dejar vacío para fecha de inicio inmediata
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="font-bold">Fecha de Fin</Label>
+          <div className="relative">
+            <Input
+              type="datetime-local"
+              {...register("fechaFin")}
+              className="focus:ring-2 focus:ring-primary"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+          {errors.fechaFin && (
+            <p className="text-sm font-medium text-red-500">
+              {errors.fechaFin.message as string}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Dejar vacío para fecha de fin indefinida
+          </p>
+        </div>
+      </div>
+
+      {watchFechaInicio && watchFechaFin && (
+        <div className="text-sm">
+          {new Date(watchFechaFin) <= new Date(watchFechaInicio) ? (
+            <p className="text-red-500 font-medium">
+              ⚠️ La fecha de fin debe ser posterior a la fecha de inicio
+            </p>
+          ) : (
+            <p className="text-green-600 font-medium">
+              ✅ Período de publicación válido
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">

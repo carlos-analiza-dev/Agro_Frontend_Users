@@ -205,6 +205,11 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
                           Recomendado
                         </span>
                       )}
+                      {tipo === TipoPaquete.AGRO_GESTION && (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
+                          Completo
+                        </span>
+                      )}
                     </div>
                   </SelectItem>
                 ))}
@@ -221,6 +226,8 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
               "Plan básico para pequeños ganaderos"}
             {selectedTipo === TipoPaquete.PREMIUM &&
               "Plan premium para medianos y grandes productores"}
+            {selectedTipo === TipoPaquete.AGRO_GESTION &&
+              "Plan agro elite para grandes productores"}
             {selectedTipo === TipoPaquete.EMPRESARIAL &&
               "Plan empresarial con características avanzadas"}
           </p>
@@ -270,7 +277,7 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
                   message: "Debe tener al menos 1 animal",
                 },
                 max: {
-                  value: 50000,
+                  value: 100000,
                   message: "No puede exceder 50000 animales",
                 },
                 valueAsNumber: true,

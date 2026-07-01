@@ -13,6 +13,8 @@ export interface Anuncio {
   esPrincipal: boolean;
   mostrar: boolean;
   etiqueta: EtiquetaAnuncio;
+  fechaInicio?: string;
+  fechaFin?: string;
   fecha_registro: Date;
   fecha_actualizacion: Date;
   pais: Pais;

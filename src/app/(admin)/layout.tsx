@@ -26,9 +26,8 @@ export default function AdminLayout({
       setMobileSidebarOpen(false);
       setLoading(true);
 
+      router.replace("/");
       await logout();
-      router.push("/");
-
       toast.success("Sesión cerrada correctamente");
     } catch (error) {
       toast.error("Ocurrió un error al cerrar la sesión");
