@@ -43,6 +43,7 @@ import {
   ArrowLeftRight,
   PanelTop,
   PanelBottom,
+  Store,
 } from "lucide-react";
 
 export const navItems = [
@@ -105,7 +106,13 @@ export const navItems = [
         href: "/pesos-promedio",
         icon: Scale,
       },
-      { name: "Roles", href: "/roles-admin", icon: UserCog },
+    ],
+  },
+  {
+    category: "Roles",
+    items: [
+      { name: "Roles Usuarios", href: "/roles-admin", icon: UserCog },
+      { name: "Roles Agro", href: "/roles-agro", icon: UserCog },
     ],
   },
   {
@@ -253,7 +260,7 @@ export const navItems = [
     category: "Permisos",
     items: [
       { name: "Ganaderos", href: "/permisos-clientes", icon: User },
-
+      { name: "Agro Servicios", href: "/permisos-agroservicio", icon: Store },
       {
         name: "Veterinarios",
         href: "/permisos-veterinarios",

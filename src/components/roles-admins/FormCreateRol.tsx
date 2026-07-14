@@ -8,17 +8,24 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Role } from "@/apis/roles/interfaces/response-roles-filters.interface";
 import { CreateRolI } from "@/apis/roles/interfaces/crear-rol.interface";
-import { AddRol } from "@/apis/roles/accions/create-rol";
-import { UpdateRol } from "@/apis/roles/accions/update-rol";
+import { AddRol, AddRolAgro } from "@/apis/roles/accions/create-rol";
+import { UpdateRol, UpdateRolAgro } from "@/apis/roles/accions/update-rol";
 
 interface Props {
   editRol?: Role | null;
   isEdit?: boolean;
   onSuccess: () => void;
   isOpen: boolean;
+  isAgro?: boolean;
 }
 
-const FormCreateRol = ({ onSuccess, editRol, isEdit, isOpen }: Props) => {
+const FormCreateRol = ({
+  onSuccess,
+  editRol,
+  isEdit,
+  isOpen,
+  isAgro,
+}: Props) => {
   const queryClient = useQueryClient();
 
   const {
@@ -48,10 +55,15 @@ const FormCreateRol = ({ onSuccess, editRol, isEdit, isOpen }: Props) => {
   }, [isOpen, isEdit, editRol, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: CreateRolI) => AddRol(data),
+    mutationFn: (data: CreateRolI) =>
+      isAgro ? AddRolAgro(data) : AddRol(data),
     onSuccess: () => {
       toast.success("Rol creado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["roles-filters"] });
+      if (isAgro) {
+        queryClient.invalidateQueries({ queryKey: ["roles-agro"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["roles-filters"] });
+      }
       reset();
       onSuccess();
     },
@@ -67,17 +79,24 @@ const FormCreateRol = ({ onSuccess, editRol, isEdit, isOpen }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de crear el rol. Inténtalo de nuevo."
+          "Hubo un error al momento de crear el rol. Inténtalo de nuevo.",
         );
       }
     },
   });
 
   const mutationUpdate = useMutation({
-    mutationFn: (data: CreateRolI) => UpdateRol(editRol?.id ?? "", data),
+    mutationFn: (data: CreateRolI) =>
+      isAgro
+        ? UpdateRolAgro(editRol?.id ?? "", data)
+        : UpdateRol(editRol?.id ?? "", data),
     onSuccess: () => {
       toast.success("Rol actualizado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["roles-filters"] });
+      if (isAgro) {
+        queryClient.invalidateQueries({ queryKey: ["roles-agro"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["roles-filters"] });
+      }
       reset();
       onSuccess();
     },
@@ -93,7 +112,7 @@ const FormCreateRol = ({ onSuccess, editRol, isEdit, isOpen }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de actualizar el rol. Inténtalo de nuevo."
+          "Hubo un error al momento de actualizar el rol. Inténtalo de nuevo.",
         );
       }
     },

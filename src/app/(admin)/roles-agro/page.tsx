@@ -1,6 +1,5 @@
 "use client";
-import useGetRolesFilters from "@/hooks/roles/useGetRolesFilters";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import {
@@ -33,6 +32,7 @@ import {
 import dynamic from "next/dynamic";
 import LoaderComponents from "@/components/generics/LoaderComponents";
 import TableUsersSkeleton from "@/components/generics/SkeletonTable";
+import useGetRolesAgro from "@/hooks/roles/useGetRolesAgro";
 
 const FormCreateRol = dynamic(
   () => import("@/components/roles-admins/FormCreateRol"),
@@ -60,7 +60,7 @@ const RolesPageAdmin = () => {
     data: rolesData,
     isLoading,
     isError,
-  } = useGetRolesFilters(limit, offset);
+  } = useGetRolesAgro(limit, offset);
 
   const filteredRoles =
     rolesData?.data.roles.filter(
@@ -124,20 +124,10 @@ const RolesPageAdmin = () => {
     setIsFormOpen(true);
   };
 
-  if (isError) {
-    return (
-      <div className="p-6">
-        <div className="bg-destructive/15 text-destructive p-4 rounded-md">
-          <p>Error al cargar los roles. Por favor, intenta nuevamente.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 space-y-6">
       <div className="block md:flex justify-between items-center">
-        <TitlePages title="Administración de Roles" />
+        <TitlePages title="Administración de Roles AgroServicio" />
 
         <Button onClick={handleAddRol} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
@@ -264,6 +254,7 @@ const RolesPageAdmin = () => {
             editRol={editRol}
             isEdit={isEdit}
             onSuccess={() => setIsFormOpen(false)}
+            isAgro={true}
           />
         </AlertDialogContent>
       </AlertDialog>

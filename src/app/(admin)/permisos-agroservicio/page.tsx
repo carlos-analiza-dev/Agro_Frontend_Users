@@ -1,5 +1,4 @@
 "use client";
-import useGetPermisosClientes from "@/hooks/permisos-clientes/useGetPermisosClientes";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +12,23 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Search } from "lucide-react";
 import { CrearPermisoInterface } from "@/apis/permisos-clientes/interfaces/crear-permiso.interface";
-import { CrearPermisoCliente } from "@/apis/permisos-clientes/accions/crear-permiso";
+import {
+  CrearPermisoAgro,
+  CrearPermisoCliente,
+} from "@/apis/permisos-clientes/accions/crear-permiso";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { EditarPermisoCliente } from "@/apis/permisos-clientes/accions/editar-permiso";
+import {
+  EditarPermisoAgro,
+  EditarPermisoCliente,
+} from "@/apis/permisos-clientes/accions/editar-permiso";
 import Paginacion from "@/components/generics/Paginacion";
 import { Permiso } from "@/apis/permisos-clientes/interfaces/response-permisos-cliente";
 import CardPermisos from "@/components/permisos/CardPermisos";
+import useGetPermisosAgro from "@/hooks/permisos-clientes/useGetPermisosAgro";
 import FormPermisosClientes from "@/components/permisos/FormPermisosClientes";
 
-const PermisosClientes = () => {
+const PermisosAgroservicioPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +44,7 @@ const PermisosClientes = () => {
 
   const offset = (currentPage - 1) * itemsPerPage;
 
-  const { data: permisosData, isLoading } = useGetPermisosClientes(
+  const { data: permisosData, isLoading } = useGetPermisosAgro(
     itemsPerPage,
     offset,
   );
@@ -107,14 +113,14 @@ const PermisosClientes = () => {
 
     try {
       if (editingPermiso) {
-        await EditarPermisoCliente(editingPermiso.id, formData);
+        await EditarPermisoAgro(editingPermiso.id, formData);
         toast.success("Permiso Actualizado Exitosamente");
       } else {
-        await CrearPermisoCliente(formData);
+        await CrearPermisoAgro(formData);
         toast.success("Permiso Creado Exitosamente");
       }
 
-      queryClient.invalidateQueries({ queryKey: ["permisos-clientes"] });
+      queryClient.invalidateQueries({ queryKey: ["permisos-agro"] });
       closeModal();
     } catch (error) {
       toast.error("Error al procesar la solicitud");
@@ -149,7 +155,7 @@ const PermisosClientes = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Permisos de Clientes
+            Permisos de Agroservicio
           </h1>
           <p className="text-gray-600 mt-2">
             Gestiona los permisos y accesos del sistema
@@ -248,4 +254,4 @@ const PermisosClientes = () => {
   );
 };
 
-export default PermisosClientes;
+export default PermisosAgroservicioPage;

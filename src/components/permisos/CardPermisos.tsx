@@ -1,10 +1,9 @@
+import { Permiso } from "@/apis/permisos-clientes/interfaces/response-permisos-cliente";
 import { PermisosClientes } from "@/apis/permisos-clientes/interfaces/response-permisos.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit } from "lucide-react";
-import React from "react";
-import { Permiso } from "../page";
 
 interface Props {
   permiso: PermisosClientes;

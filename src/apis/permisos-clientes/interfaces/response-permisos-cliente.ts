@@ -14,5 +14,5 @@ export interface Permiso {
   url: string;
   modulo: string;
   isActive: boolean;
-  createdAt: Date;
+  createdAt: string;
 }

@@ -10,9 +10,19 @@ export const getRoles = async () => {
 
 export const getRolesFilters = async (
   limit: number = 10,
-  offset: number = 0
+  offset: number = 0,
 ) => {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/roles/filters?limit=${limit}&offset=${offset}`;
+
+  const response = await veterinariaAPI.get<ResponseRolesFilter>(url);
+  return response;
+};
+
+export const getRolesAgroFilters = async (
+  limit: number = 10,
+  offset: number = 0,
+) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/roles-agro/filters?limit=${limit}&offset=${offset}`;
 
   const response = await veterinariaAPI.get<ResponseRolesFilter>(url);
   return response;
