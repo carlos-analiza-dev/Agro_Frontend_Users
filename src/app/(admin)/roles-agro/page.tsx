@@ -127,7 +127,7 @@ const RolesPageAdmin = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="block md:flex justify-between items-center">
-        <TitlePages title="Administración de Roles AgroServicio" />
+        <TitlePages title="Administración de roles para empleados de agro servicio" />
 
         <Button onClick={handleAddRol} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />

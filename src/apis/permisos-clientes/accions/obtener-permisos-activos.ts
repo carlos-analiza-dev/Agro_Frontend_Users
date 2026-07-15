@@ -7,3 +7,10 @@ export const ObtenerPermisosActivosClientes = async () => {
   const response = await veterinariaAPI.get<PermisosClientes[]>(url);
   return response.data;
 };
+
+export const ObtenerPermisosActivosAgro = async () => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/permisos-clientes-agro/activos`;
+
+  const response = await veterinariaAPI.get<PermisosClientes[]>(url);
+  return response.data;
+};

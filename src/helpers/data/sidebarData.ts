@@ -44,6 +44,7 @@ import {
   PanelTop,
   PanelBottom,
   Store,
+  UserLock,
 } from "lucide-react";
 
 export const navItems = [
@@ -261,6 +262,7 @@ export const navItems = [
     items: [
       { name: "Ganaderos", href: "/permisos-clientes", icon: User },
       { name: "Agro Servicios", href: "/permisos-agroservicio", icon: Store },
+      { name: "Agro Roles", href: "/permisos-roles", icon: UserLock },
       {
         name: "Veterinarios",
         href: "/permisos-veterinarios",

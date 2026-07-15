@@ -8,6 +8,12 @@ export const getRoles = async () => {
   return response;
 };
 
+export const getRolesAgro = async () => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/roles-agro`;
+  const response = await veterinariaAPI.get<ResponseRoles[]>(url);
+  return response.data;
+};
+
 export const getRolesFilters = async (
   limit: number = 10,
   offset: number = 0,
