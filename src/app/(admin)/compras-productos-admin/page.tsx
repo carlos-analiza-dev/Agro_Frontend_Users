@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import useGetCompras from "@/hooks/compras/useGetCompras";
 import {
   Select,
@@ -19,14 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import useGetProveedoresActivos from "@/hooks/proveedores/useGetProveedoresActivos";
 import useGetSucursalesPais from "@/hooks/sucursales/useGetSucursalesPais";
 import { useAuthStore } from "@/providers/store/useAuthStore";
@@ -56,7 +48,7 @@ const ComprasProductosPage = () => {
     offset,
     proveedorId,
     sucursalId,
-    todosPagos
+    todosPagos,
   );
 
   const totalPages = comprasData ? Math.ceil(comprasData.total / limit) : 1;

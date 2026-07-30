@@ -5,6 +5,7 @@ const useGetPermisosNoRol = (rolId: string) => {
   return useQuery({
     queryKey: ["permisos-no-roles", rolId],
     queryFn: () => ObtenerPermisosNoRoles(rolId),
+    enabled: !!rolId,
     retry: 1,
   });
 };

@@ -22,10 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuthStore } from "@/providers/store/useAuthStore";
-import { Edit, Eye } from "lucide-react";
-import React, { useState } from "react";
-import TableDetailsProductos from "./TableDetailsProductos";
-import TableDetailsLotes from "./TableDetailsLotes";
+import { Eye } from "lucide-react";
+import { useState } from "react";
 import { StatusMessage } from "@/components/generics/StatusMessage";
 import InfoCompra from "./InfoCompra";
 
