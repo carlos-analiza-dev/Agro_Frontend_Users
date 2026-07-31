@@ -60,6 +60,7 @@ import useGetAllCategorias from "@/hooks/categorias/useGetAllCategorias";
 import useGetSubCategoriaByCat from "@/hooks/subcategorias/useGetSubCategoriaByCat";
 import useGetTipoProductoBySubCategoria from "@/hooks/tipo-producto/useGetTipoProductoBySubCategoria";
 import { useDebounceFacturas } from "@/hooks/facturas/useDebounceFacturas";
+
 interface Props {
   onSuccess: () => void;
   simbolo: string;
@@ -118,6 +119,9 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
   >([]);
   const [preciosServicioSeleccionados, setPreciosServicioSeleccionados] =
     useState<{ [key: string]: PreciosPorPai[] }>({});
+
+  const [itemsSeleccionadosPersistentes, setItemsSeleccionadosPersistentes] =
+    useState<ProductoServicioUnificado[]>([]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [productoNoVendido, setProductoNoVendido] = useState<
@@ -275,6 +279,14 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
           return newPrecios;
         });
       }
+
+      setItemsSeleccionadosPersistentes((prev) => {
+        const existe = prev.some((p) => p.id === itemSeleccionado.id);
+        if (!existe) {
+          return [...prev, itemSeleccionado];
+        }
+        return prev;
+      });
     }
 
     setTimeout(actualizarExistencias, 100);
@@ -303,7 +315,6 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
       ...rest,
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e);
-
         setTimeout(actualizarExistencias, 300);
       },
     };
@@ -312,18 +323,26 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
   const productosParaVerificar = useMemo(() => {
     return detalles
       .filter((detalle) => {
-        const producto = productosYServicios.find(
-          (p) => p.id === detalle.id_producto_servicio,
-        );
+        const producto =
+          itemsSeleccionadosPersistentes.find(
+            (p) => p.id === detalle.id_producto_servicio,
+          ) ||
+          productosYServicios.find(
+            (p) => p.id === detalle.id_producto_servicio,
+          );
         return producto?.tipo === "producto" && detalle.id_producto_servicio;
       })
       .map((detalle) => ({
         productoId: detalle.id_producto_servicio,
         cantidad: detalle.cantidad || 0,
-
         forceUpdate: forceUpdate,
       }));
-  }, [detalles, productosYServicios, forceUpdate]);
+  }, [
+    detalles,
+    itemsSeleccionadosPersistentes,
+    productosYServicios,
+    forceUpdate,
+  ]);
 
   const existenciasQueries = useQueries({
     queries: productosParaVerificar.map((producto) => ({
@@ -357,9 +376,11 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
 
   const productosSinExistencia = useMemo(() => {
     return detalles.filter((detalle) => {
-      const producto = productosYServicios.find(
-        (p) => p.id === detalle.id_producto_servicio,
-      );
+      const producto =
+        itemsSeleccionadosPersistentes.find(
+          (p) => p.id === detalle.id_producto_servicio,
+        ) ||
+        productosYServicios.find((p) => p.id === detalle.id_producto_servicio);
       if (producto?.tipo === "producto") {
         const existencia = mapaExistencias[detalle.id_producto_servicio] || 0;
         const cantidadRequerida = detalle.cantidad || 0;
@@ -367,15 +388,22 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
       }
       return false;
     });
-  }, [detalles, productosYServicios, mapaExistencias]);
+  }, [
+    detalles,
+    itemsSeleccionadosPersistentes,
+    productosYServicios,
+    mapaExistencias,
+  ]);
 
   const tieneExistenciaSuficiente = productosSinExistencia.length === 0;
 
   const infoProductosSinExistencia = useMemo(() => {
     return productosSinExistencia.map((detalle) => {
-      const producto = productosYServicios.find(
-        (p) => p.id === detalle.id_producto_servicio,
-      );
+      const producto =
+        itemsSeleccionadosPersistentes.find(
+          (p) => p.id === detalle.id_producto_servicio,
+        ) ||
+        productosYServicios.find((p) => p.id === detalle.id_producto_servicio);
       const existencia = mapaExistencias[detalle.id_producto_servicio] || 0;
 
       return {
@@ -385,7 +413,12 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
         productoId: detalle.id_producto_servicio,
       };
     });
-  }, [productosSinExistencia, productosYServicios, mapaExistencias]);
+  }, [
+    productosSinExistencia,
+    itemsSeleccionadosPersistentes,
+    productosYServicios,
+    mapaExistencias,
+  ]);
 
   const subTotal = useMemo(() => {
     return (
@@ -455,6 +488,8 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
       toast.success("Factura creada exitosamente");
       queryClient.invalidateQueries({ queryKey: ["facturas"] });
       reset();
+
+      setItemsSeleccionadosPersistentes([]);
       onSuccess();
     },
     onError: (error) => {
@@ -491,7 +526,9 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
     if (hayProductosDuplicados) {
       const productosDuplicadosNombres = productosDuplicados
         .map((productoId) => {
-          const producto = productosYServicios.find((p) => p.id === productoId);
+          const producto =
+            itemsSeleccionadosPersistentes.find((p) => p.id === productoId) ||
+            productosYServicios.find((p) => p.id === productoId);
           return producto?.nombre || "Producto desconocido";
         })
         .join(", ");
@@ -518,7 +555,19 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
   };
 
   const eliminarDetalle = (index: number) => {
+    const productoId = watch(`detalles.${index}.id_producto_servicio`);
     remove(index);
+
+    const otrosDetalles = detalles.filter((_, i) => i !== index);
+    const existeOtro = otrosDetalles.some(
+      (d) => d.id_producto_servicio === productoId,
+    );
+
+    if (!existeOtro && productoId) {
+      setItemsSeleccionadosPersistentes((prev) =>
+        prev.filter((p) => p.id !== productoId),
+      );
+    }
 
     setPreciosServicioSeleccionados((prev) => {
       const newPrecios = { ...prev };
@@ -810,9 +859,10 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
                 </div>
                 <ul className="mt-1 text-sm text-red-600">
                   {productosDuplicados.map((productoId) => {
-                    const producto = productosYServicios.find(
-                      (p) => p.id === productoId,
-                    );
+                    const producto =
+                      itemsSeleccionadosPersistentes.find(
+                        (p) => p.id === productoId,
+                      ) || productosYServicios.find((p) => p.id === productoId);
                     return (
                       <li key={productoId}>
                         • {producto?.nombre || "Producto desconocido"}
@@ -861,9 +911,12 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
                   );
                   const cantidad = watch(`detalles.${index}.cantidad`) || 0;
                   const precio = watch(`detalles.${index}.precio`) || 0;
-                  const item = productosYServicios.find(
-                    (p) => p.id === productoId,
-                  );
+
+                  const item =
+                    itemsSeleccionadosPersistentes.find(
+                      (p) => p.id === productoId,
+                    ) || productosYServicios.find((p) => p.id === productoId);
+
                   const esServicio = item?.tipo === "servicio";
                   const preciosDisponibles =
                     preciosServicioSeleccionados[index];
@@ -883,30 +936,50 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
                       key={field.id}
                       className={
                         sinSuficienteExistencia || esDuplicado
-                          ? "bg-red-300"
+                          ? "bg-red-50"
                           : ""
                       }
                     >
                       <TableCell>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{item?.nombre}</span>
-                            <Badge
-                              variant={
-                                item?.tipo === "producto"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {item?.tipo === "producto"
-                                ? "Producto"
-                                : "Servicio"}
-                            </Badge>
+                            <span className="font-medium">
+                              {item?.nombre || "Item no disponible"}
+                            </span>
+                            {item ? (
+                              <Badge
+                                variant={
+                                  item.tipo === "producto"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {item.tipo === "producto"
+                                  ? "Producto"
+                                  : "Servicio"}
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="outline"
+                                className="text-amber-600"
+                              >
+                                ⚠️ No disponible
+                              </Badge>
+                            )}
                           </div>
+                          {!item && (
+                            <span className="text-xs text-amber-600">
+                              ⚠️ Item no disponible en el filtro actual
+                            </span>
+                          )}
                           <ExistenciaBadge
                             productoId={productoId}
                             cantidad={cantidad}
-                            productosYServicios={productosYServicios}
+                            productosYServicios={
+                              itemsSeleccionadosPersistentes.length > 0
+                                ? itemsSeleccionadosPersistentes
+                                : productosYServicios
+                            }
                             mapaExistencias={mapaExistencias}
                             existenciasQueries={existenciasQueries}
                           />
@@ -961,7 +1034,7 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
                                   key={precioItem.id}
                                   value={precioItem.id}
                                 >
-                                  L. {precioItem.precio} -{" "}
+                                  {simbolo} {precioItem.precio} -{" "}
                                   {formatearRangoAnimales(precioItem)}
                                 </SelectItem>
                               ))}
@@ -1025,7 +1098,8 @@ const FormCreateFactura = ({ onSuccess, simbolo }: Props) => {
                       </TableCell>
 
                       <TableCell className="font-medium">
-                        L. {calcularTotalLinea(cantidad, precio).toFixed(2)}
+                        {simbolo}{" "}
+                        {calcularTotalLinea(cantidad, precio).toFixed(2)}
                       </TableCell>
 
                       <TableCell>

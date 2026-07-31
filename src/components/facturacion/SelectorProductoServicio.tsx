@@ -143,15 +143,20 @@ const SelectorProductoServicio = ({
             </Badge>
           )}
         </div>
-        <Button
-          onClick={() => clearFilters()}
-          variant="outline"
-          size="sm"
-          className="gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={clearFilters}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              clearFilters();
+            }
+          }}
+          className="inline-flex cursor-pointer select-none items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95"
         >
           <Filter className="h-4 w-4" />
           Limpiar Filtros
-        </Button>
+        </div>
       </div>
 
       {!isEdit && (
