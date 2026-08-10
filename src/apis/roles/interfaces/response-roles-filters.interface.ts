@@ -8,4 +8,5 @@ export interface Role {
   name: string;
   description: string;
   isActive: boolean;
+  mostrarLight?: boolean;
 }

@@ -262,6 +262,7 @@ export const navItems = [
     items: [
       { name: "Ganaderos", href: "/permisos-clientes", icon: User },
       { name: "Agro Servicios", href: "/permisos-agroservicio", icon: Store },
+      { name: "Agro Light", href: "/permisos-agro-light", icon: Store },
       { name: "Agro Roles", href: "/permisos-roles", icon: UserLock },
       {
         name: "Veterinarios",

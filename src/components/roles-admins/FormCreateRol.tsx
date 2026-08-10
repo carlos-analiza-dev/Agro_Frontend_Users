@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Role } from "@/apis/roles/interfaces/response-roles-filters.interface";
@@ -32,9 +32,11 @@ const FormCreateRol = ({
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
+    watch,
   } = useForm<CreateRolI>();
+
+  const mostrarLight = watch("mostrarLight");
 
   useEffect(() => {
     if (isOpen) {
@@ -43,20 +45,35 @@ const FormCreateRol = ({
           name: editRol.name,
           description: editRol.description,
           isActive: editRol.isActive,
+          mostrarLight: editRol.mostrarLight || false,
         });
       } else {
         reset({
           name: "",
           description: "",
           isActive: true,
+          mostrarLight: false,
         });
       }
     }
   }, [isOpen, isEdit, editRol, reset]);
 
+  const prepareData = (data: CreateRolI) => {
+    if (isAgro) {
+      return data;
+    } else {
+      const { mostrarLight, ...restData } = data;
+      return restData;
+    }
+  };
+
   const mutation = useMutation({
-    mutationFn: (data: CreateRolI) =>
-      isAgro ? AddRolAgro(data) : AddRol(data),
+    mutationFn: (data: CreateRolI) => {
+      const preparedData = prepareData(data);
+      return isAgro
+        ? AddRolAgro(preparedData as CreateRolI)
+        : AddRol(preparedData as CreateRolI);
+    },
     onSuccess: () => {
       toast.success("Rol creado exitosamente");
       if (isAgro) {
@@ -86,10 +103,12 @@ const FormCreateRol = ({
   });
 
   const mutationUpdate = useMutation({
-    mutationFn: (data: CreateRolI) =>
-      isAgro
-        ? UpdateRolAgro(editRol?.id ?? "", data)
-        : UpdateRol(editRol?.id ?? "", data),
+    mutationFn: (data: CreateRolI) => {
+      const preparedData = prepareData(data);
+      return isAgro
+        ? UpdateRolAgro(editRol?.id ?? "", preparedData as CreateRolI)
+        : UpdateRol(editRol?.id ?? "", preparedData as CreateRolI);
+    },
     onSuccess: () => {
       toast.success("Rol actualizado exitosamente");
       if (isAgro) {
@@ -187,6 +206,28 @@ const FormCreateRol = ({
           </Label>
         </div>
       </div>
+
+      {isAgro && (
+        <div className="space-y-2">
+          <Label className="font-bold">Configuración Visual</Label>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="mostrarLight"
+              {...register("mostrarLight")}
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <Label htmlFor="mostrarLight" className="text-sm font-normal">
+              Mostrar en modo light
+            </Label>
+          </div>
+          {mostrarLight && (
+            <p className="text-xs text-gray-500">
+              Este rol se mostrará con el tema light en la interfaz
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end space-x-3 pt-4">
         <Button type="button" variant="outline" onClick={() => {}}>

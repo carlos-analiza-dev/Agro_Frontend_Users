@@ -210,6 +210,11 @@ const FormPaquete = ({ paquete, setOpenModal, onSuccess }: Props) => {
                           Completo
                         </span>
                       )}
+                      {tipo === TipoPaquete.AGRO_LIGHT && (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
+                          Medio
+                        </span>
+                      )}
                     </div>
                   </SelectItem>
                 ))}

@@ -39,6 +39,7 @@ const PaquetesPage = () => {
   const [open3, setOpen3] = useState(false);
   const [paqueteId, setPaqueteId] = useState("");
   const { data: permisos_paquete } = useGetPermisosByPaquete(paqueteId);
+
   const { data: permisos_activos } = useGetPermisosActivos();
 
   const handleAgregarPermiso = () => {

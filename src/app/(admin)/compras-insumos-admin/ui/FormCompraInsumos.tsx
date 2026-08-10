@@ -1,7 +1,6 @@
 import { CrearCompraInsumo } from "@/apis/compras_insumos/accions/crear-compra-insumo";
 import { InsumoCompra } from "@/apis/compras_insumos/interfaces/insumos_compra.interface";
 import DetailsCompra from "@/components/generics/DetailsCompra";
-import DetailsConfirmCompra from "@/components/generics/DetailsConfirmCompra";
 import ResumenCompra from "@/components/generics/ResumenCompra";
 import {
   AlertDialog,
@@ -82,7 +81,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
         toast.error(errorMessage);
       } else {
         toast.error(
-          "Hubo un error al momento de ejecutar la compra. Inténtalo de nuevo."
+          "Hubo un error al momento de ejecutar la compra. Inténtalo de nuevo.",
         );
       }
       setIsConfirmCompra(false);
@@ -158,14 +157,14 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
         .trim();
 
       const tipoPagoMatch = tiposPagos.find(
-        (tipo) => tipo.value.toUpperCase() === tipoPagoFromAPI
+        (tipo) => tipo.value.toUpperCase() === tipoPagoFromAPI,
       );
 
       if (tipoPagoMatch) {
         setValue("tipoPago", tipoPagoMatch.value);
       } else {
         toast.warning(
-          `Tipo de pago "${proveedorSeleccionado.tipo_pago_default}" no coincide con los valores disponibles`
+          `Tipo de pago "${proveedorSeleccionado.tipo_pago_default}" no coincide con los valores disponibles`,
         );
         setValue("tipoPago", "");
       }
@@ -187,7 +186,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
 
     return insumosWatch.every(
       (insumo) =>
-        insumo.insumoId && insumo.cantidad > 0 && insumo.costoUnitario > 0
+        insumo.insumoId && insumo.cantidad > 0 && insumo.costoUnitario > 0,
     );
   };
 
@@ -197,7 +196,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
         return true;
       }
       const estaSeleccionado = insumosWatch?.some(
-        (p, index) => index !== currentIndex && p.insumoId === insumo.id
+        (p, index) => index !== currentIndex && p.insumoId === insumo.id,
       );
       return !estaSeleccionado;
     });
@@ -251,7 +250,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
         impuestos: parseFloat(impuestoInsumo.toFixed(2)),
         cantidad_total: insumo.cantidad + (insumo.bonificacion || 0),
         monto_total: parseFloat(
-          (subtotalConDescuento + impuestoInsumo).toFixed(2)
+          (subtotalConDescuento + impuestoInsumo).toFixed(2),
         ),
       };
     });
@@ -437,7 +436,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
             const descuentos = descuentosQueries[index]?.data;
             const escalas = escalasQueries[index]?.data;
             const insumosSeleccionado = insumos.find(
-              (p) => p.id === insumosWatch?.[index]?.insumoId
+              (p) => p.id === insumosWatch?.[index]?.insumoId,
             );
 
             const cantidadPagada = insumosWatch?.[index]?.cantidad || 0;
@@ -498,18 +497,18 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
                         onValueChange={(value) => {
                           const cantidad = Number(value);
                           const escala = escalas?.find(
-                            (d) => d.cantidad_comprada === cantidad
+                            (d) => d.cantidad_comprada === cantidad,
                           );
 
                           setValue(`insumos.${index}.cantidad`, cantidad);
 
                           setValue(
                             `insumos.${index}.bonificacion`,
-                            escala?.bonificacion ?? 0
+                            escala?.bonificacion ?? 0,
                           );
                           setValue(
                             `insumos.${index}.costoUnitario`,
-                            escala?.costo ?? 0
+                            escala?.costo ?? 0,
                           );
                         }}
                       >
@@ -565,7 +564,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
                           {
                             valueAsNumber: true,
                             min: { value: 0, message: "Mínimo 0" },
-                          }
+                          },
                         )}
                       />
                     </div>
@@ -654,14 +653,14 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
                         onValueChange={(value) => {
                           const cantidad = Number(value);
                           const descuento = descuentos?.find(
-                            (d) => d.cantidad_comprada === cantidad
+                            (d) => d.cantidad_comprada === cantidad,
                           );
 
                           setValue(`insumos.${index}.cantidad`, cantidad);
 
                           setValue(
                             `insumos.${index}.descuento`,
-                            descuento?.descuentos ?? 0
+                            descuento?.descuentos ?? 0,
                           );
                         }}
                       >
@@ -716,7 +715,7 @@ const FormCompraInsumos = ({ onSuccess }: Props) => {
                           {
                             valueAsNumber: true,
                             min: { value: 0, message: "Mínimo 0" },
-                          }
+                          },
                         )}
                       />
                     </div>

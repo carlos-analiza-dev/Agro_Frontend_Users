@@ -10,8 +10,11 @@ export const getTipoText = (tipo: TipoPaquete) => {
       return "Premium";
     case TipoPaquete.AGRO_GESTION:
       return "Agro Géstion";
+    case TipoPaquete.AGRO_LIGHT:
+      return "Agro Light";
     case TipoPaquete.EMPRESARIAL:
       return "Empresarial";
+
     default:
       return tipo;
   }

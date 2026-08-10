@@ -33,7 +33,7 @@ const PermisosAgroservicioPage = () => {
   const [formData, setFormData] = useState<CrearPermisoInterface>({
     nombre: "",
     descripcion: "",
-    tipo: TipoAgroservicio.AGRO_GESTION,
+    tipo: TipoAgroservicio.AGRO_LIGHT,
     url: "",
     modulo: "",
     isActive: true,
@@ -44,7 +44,7 @@ const PermisosAgroservicioPage = () => {
   const { data: permisosData, isLoading } = useGetPermisosAgro({
     limit: itemsPerPage,
     offset,
-    tipo_agro: TipoAgroservicio.AGRO_GESTION,
+    tipo_agro: TipoAgroservicio.AGRO_LIGHT,
   });
   const queryClient = useQueryClient();
 
@@ -76,7 +76,7 @@ const PermisosAgroservicioPage = () => {
       setEditingPermiso(permiso);
       setFormData({
         nombre: permiso.nombre,
-        tipo: TipoAgroservicio.AGRO_GESTION,
+        tipo: TipoAgroservicio.AGRO_LIGHT,
         descripcion: permiso.descripcion,
         url: permiso.url,
         modulo: permiso.modulo,
@@ -86,7 +86,7 @@ const PermisosAgroservicioPage = () => {
       setEditingPermiso(null);
       setFormData({
         nombre: "",
-        tipo: TipoAgroservicio.AGRO_GESTION,
+        tipo: TipoAgroservicio.AGRO_LIGHT,
         descripcion: "",
         url: "",
         modulo: "",
@@ -101,7 +101,7 @@ const PermisosAgroservicioPage = () => {
     setEditingPermiso(null);
     setFormData({
       nombre: "",
-      tipo: TipoAgroservicio.AGRO_GESTION,
+      tipo: TipoAgroservicio.AGRO_LIGHT,
       descripcion: "",
       url: "",
       modulo: "",
@@ -119,7 +119,7 @@ const PermisosAgroservicioPage = () => {
       } else {
         await CrearPermisoAgro({
           ...formData,
-          tipo: TipoAgroservicio.AGRO_GESTION,
+          tipo: TipoAgroservicio.AGRO_LIGHT,
         });
         toast.success("Permiso Creado Exitosamente");
       }
@@ -172,7 +172,7 @@ const PermisosAgroservicioPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Permisos de Agroservicio
+            Permisos de Agro Light
           </h1>
           <p className="text-gray-600 mt-2">
             Gestiona los permisos y accesos del sistema

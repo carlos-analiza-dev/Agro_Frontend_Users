@@ -1,5 +1,6 @@
 import { veterinariaAPI } from "@/helpers/api/veterinariaAPI";
 import { ResponsePermisosInterface } from "../interfaces/response-permisos.interface";
+import { PaginationInterface } from "@/interfaces/paginacion/paginacion.interface";
 
 export const ObtenerPermisosClientes = async (
   limit: number = 10,
@@ -17,18 +18,11 @@ export const ObtenerPermisosClientes = async (
   return response.data;
 };
 
-export const ObtenerPermisosAgro = async (
-  limit: number = 10,
-  offset: number = 0,
-) => {
-  const params: Record<string, string> = {
-    limit: limit.toString(),
-    offset: offset.toString(),
-  };
+export const ObtenerPermisosAgro = async (filters?: PaginationInterface) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/permisos-clientes-agro`;
 
-  const queryString = new URLSearchParams(params).toString();
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/permisos-clientes-agro?${queryString}`;
-
-  const response = await veterinariaAPI.get<ResponsePermisosInterface>(url);
+  const response = await veterinariaAPI.get<ResponsePermisosInterface>(url, {
+    params: filters,
+  });
   return response.data;
 };
