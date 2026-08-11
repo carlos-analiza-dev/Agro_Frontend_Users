@@ -1,7 +1,12 @@
 import { veterinariaAPI } from "@/helpers/api/veterinariaAPI";
-import { CrearPermisoInterface } from "../interfaces/crear-permiso.interface";
+import {
+  CrearPermisoInterface,
+  CrearPermisoInterfaceClientes,
+} from "../interfaces/crear-permiso.interface";
 
-export const CrearPermisoCliente = async (data: CrearPermisoInterface) => {
+export const CrearPermisoCliente = async (
+  data: CrearPermisoInterfaceClientes,
+) => {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/permisos-clientes`;
 
   const response = await veterinariaAPI.post(url, data);

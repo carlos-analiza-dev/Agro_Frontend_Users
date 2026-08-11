@@ -8,3 +8,11 @@ export interface CrearPermisoInterface {
   modulo: string;
   isActive: boolean;
 }
+
+export interface CrearPermisoInterfaceClientes {
+  nombre: string;
+  descripcion: string;
+  url: string;
+  modulo: string;
+  isActive: boolean;
+}

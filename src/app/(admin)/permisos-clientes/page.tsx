@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus, Search } from "lucide-react";
-import { CrearPermisoInterface } from "@/apis/permisos-clientes/interfaces/crear-permiso.interface";
+import { CrearPermisoInterfaceClientes } from "@/apis/permisos-clientes/interfaces/crear-permiso.interface";
 import { CrearPermisoCliente } from "@/apis/permisos-clientes/accions/crear-permiso";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -28,7 +28,7 @@ const PermisosClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPermiso, setEditingPermiso] = useState<Permiso | null>(null);
-  const [formData, setFormData] = useState<CrearPermisoInterface>({
+  const [formData, setFormData] = useState<CrearPermisoInterfaceClientes>({
     nombre: "",
     descripcion: "",
     url: "",

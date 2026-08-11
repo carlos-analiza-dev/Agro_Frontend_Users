@@ -1,4 +1,4 @@
-import { CrearPermisoInterface } from "@/apis/permisos-clientes/interfaces/crear-permiso.interface";
+import { CrearPermisoInterfaceClientes } from "@/apis/permisos-clientes/interfaces/crear-permiso.interface";
 import { Permiso } from "@/apis/permisos-clientes/interfaces/response-permisos-cliente";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -9,7 +9,7 @@ import { ChangeEvent, FormEvent } from "react";
 
 interface Props {
   handleSubmit: (e: FormEvent<Element>) => void;
-  formData: CrearPermisoInterface;
+  formData: CrearPermisoInterfaceClientes;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleSwitchChange: (checked: boolean) => void;
   closeModal: () => void;
