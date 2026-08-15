@@ -28,8 +28,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle, Edit, XCircle, Plus } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle, Edit, XCircle, Plus, Package, Gift } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import FormClientes from "./FormClientes";
 import useGetPermisosByCliente from "@/hooks/permisos-clientes/useGetPermisosByCliente";
@@ -42,6 +42,22 @@ import ResumenPermiso from "@/components/permisos/ResumenPermiso";
 import TablePermisosAsignados from "@/components/permisos/TablePermisosAsignados";
 import { Badge } from "@/components/ui/badge";
 import { TipoCliente } from "@/interfaces/enums/clientes.enums";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import useGetObtenerPaquetes from "@/hooks/paquetes/useGetObtenerPaquetes";
+import { asignarPaqueteCliente } from "@/apis/paquetes/accions/asignar-paquete-cliente";
+import { ComprarPaqueteInterface } from "@/apis/paquetes/interfaces/comprar-paquete.interface";
+import { Input } from "@/components/ui/input";
+import {
+  formatearFechaFin,
+  formatearFechaInicio,
+} from "@/helpers/funciones/paquetes/fechasFormater";
 
 interface Props {
   data: {
@@ -58,18 +74,33 @@ const TableClientes = ({ data, isLoading }: Props) => {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
   const [open4, setOpen4] = useState(false);
+  const [open5, setOpen5] = useState(false);
   const [activo, setActivo] = useState(false);
   const [permisosSeleccionados, setPermisosSeleccionados] = useState<string[]>(
     [],
   );
-
+  const [paqueteSeleccionado, setPaqueteSeleccionado] = useState<string>("");
+  const [fechaInicio, setFechaInicio] = useState<string>("");
+  const [fechaFin, setFechaFin] = useState<string>("");
   const { data: permisos_cliente } = useGetPermisosByCliente(clienteId);
   const { data: permisos_activos } = useGetPermisosActivos();
+  const { data: paquetes } = useGetObtenerPaquetes();
 
   const handleEditUser = (clienteId: string) => {
     setClienteId(clienteId);
     setOpen(true);
   };
+
+  useEffect(() => {
+    if (open5) {
+      const hoy = new Date();
+      const fin = new Date();
+      fin.setDate(fin.getDate() + 30);
+
+      setFechaInicio(hoy.toISOString().split("T")[0]);
+      setFechaFin(fin.toISOString().split("T")[0]);
+    }
+  }, [open5]);
 
   const handleToggleActive = async (isActive: boolean) => {
     try {
@@ -94,6 +125,39 @@ const TableClientes = ({ data, isLoading }: Props) => {
   const handleViewClienteId = (clienteId: string) => {
     setOpen3(true);
     setClienteId(clienteId);
+  };
+
+  const handleAsignarPaquete = (clienteId: string) => {
+    setClienteId(clienteId);
+    setPaqueteSeleccionado("");
+    setOpen5(true);
+  };
+
+  const handleConfirmarAsignarPaquete = async () => {
+    if (!paqueteSeleccionado) {
+      toast.error("Por favor selecciona un paquete");
+      return;
+    }
+
+    try {
+      const fechaInicio = new Date();
+      const fechaFin = new Date();
+      fechaFin.setDate(fechaFin.getDate() + 30);
+
+      const data: ComprarPaqueteInterface = {
+        paqueteId: paqueteSeleccionado,
+        fechaInicio: formatearFechaInicio(fechaInicio),
+        fechaFin: formatearFechaFin(fechaFin),
+      };
+
+      await asignarPaqueteCliente(clienteId, data);
+      queryClient.invalidateQueries({ queryKey: ["clientes-admin"] });
+      toast.success("Paquete asignado correctamente");
+      setOpen5(false);
+      setPaqueteSeleccionado("");
+    } catch (error) {
+      toast.error("Error al asignar el paquete");
+    }
   };
 
   const handlePermisoChange = async (
@@ -193,6 +257,8 @@ const TableClientes = ({ data, isLoading }: Props) => {
         (permisoCliente) => permisoCliente.permiso.id === permisoActivo.id,
       ),
   );
+
+  const paquetesDisponibles = paquetes?.filter((paquete) => paquete.isActive);
 
   return (
     <>
@@ -299,6 +365,30 @@ const TableClientes = ({ data, isLoading }: Props) => {
                               </p>
                             </TooltipContent>
                           </Tooltip>
+                          {user.rol === TipoCliente.PROPIETARIO &&
+                            !user.tienePaqueteActivo && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() =>
+                                      handleAsignarPaquete(user.id)
+                                    }
+                                  >
+                                    <Package className="h-4 w-4 text-purple-500" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    {user.tienePaqueteActivo
+                                      ? "Cambiar Paquete"
+                                      : "Asignar Paquete"}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
                         </TooltipProvider>
                       </div>
                     </TableCell>
@@ -346,6 +436,123 @@ const TableClientes = ({ data, isLoading }: Props) => {
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => handleToggleActive(!activo)}>
               {!activo ? "Activar" : "Desactivar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={open5} onOpenChange={setOpen5}>
+        <AlertDialogContent className="max-w-md">
+          <div className="flex justify-between items-center">
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-purple-500" />
+              Asignar Paquete
+            </AlertDialogTitle>
+            <AlertDialogCancel
+              onClick={() => {
+                setOpen5(false);
+                setPaqueteSeleccionado("");
+              }}
+            >
+              X
+            </AlertDialogCancel>
+          </div>
+          <AlertDialogDescription>
+            Selecciona un paquete y las fechas para asignar al cliente
+            propietario
+          </AlertDialogDescription>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="paquete">Paquete</Label>
+              <Select
+                value={paqueteSeleccionado}
+                onValueChange={setPaqueteSeleccionado}
+              >
+                <SelectTrigger id="paquete" className="w-full">
+                  <SelectValue placeholder="Selecciona un paquete" />
+                </SelectTrigger>
+                <SelectContent>
+                  {paquetesDisponibles && paquetesDisponibles.length > 0 ? (
+                    paquetesDisponibles.map((paquete) => (
+                      <SelectItem key={paquete.id} value={paquete.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{paquete.nombre}</span>
+                          <span className="text-xs text-gray-500">
+                            {paquete.tipo}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-disponible" disabled>
+                      No hay paquetes disponibles
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fechaInicio">Fecha Inicio</Label>
+                <Input
+                  id="fechaInicio"
+                  type="date"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fechaFin">Fecha Fin</Label>
+                <Input
+                  id="fechaFin"
+                  type="date"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  min={fechaInicio || new Date().toISOString().split("T")[0]}
+                />
+              </div>
+            </div>
+
+            {paqueteSeleccionado && (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Package className="h-5 w-5 text-purple-500 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-purple-800">
+                      {
+                        paquetes?.find((p) => p.id === paqueteSeleccionado)
+                          ?.nombre
+                      }
+                    </h4>
+                    <p className="text-sm text-purple-600">
+                      {
+                        paquetes?.find((p) => p.id === paqueteSeleccionado)
+                          ?.tipo
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setOpen5(false);
+                setPaqueteSeleccionado("");
+              }}
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmarAsignarPaquete}
+              disabled={!paqueteSeleccionado || !fechaInicio || !fechaFin}
+            >
+              Asignar Paquete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

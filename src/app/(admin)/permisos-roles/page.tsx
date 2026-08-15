@@ -10,7 +10,6 @@ import { useState } from "react";
 import Modal from "@/components/generics/Modal";
 import FormAddPermisosByRol from "./ui/FormAddPermisosByRol";
 import CardByRol from "./ui/CardByRol";
-import CardByModulo from "./ui/CardByModulo";
 import { StatCard } from "@/components/generics/StatCard";
 import {
   getPermisosByModulo,
@@ -25,7 +24,6 @@ const PermisosAgroRolesPage = () => {
 
   const [openModalForm, setOpenModalForm] = useState(false);
   const [selectedRol, setSelectedRol] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"roles" | "modulos">("roles");
 
   const handleEditPermisos = (rolId: string) => {
     setOpenModalForm(true);
@@ -165,14 +163,9 @@ const PermisosAgroRolesPage = () => {
         />
       </div>
 
-      <Tabs
-        defaultValue="roles"
-        className="w-full"
-        onValueChange={(value) => setViewMode(value as "roles" | "modulos")}
-      >
+      <Tabs defaultValue="roles" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="roles">Vista por Roles</TabsTrigger>
-          <TabsTrigger value="modulos">Vista por Módulos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="roles" className="mt-6">
@@ -189,25 +182,6 @@ const PermisosAgroRolesPage = () => {
                   permisos={permisos}
                   permisosByModulo={permisosByModulo}
                   handleEditPermisos={handleEditPermisos}
-                />
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="modulos" className="mt-6">
-          <div className="space-y-6">
-            {totalModulos.map((modulo) => {
-              const permisosDelModulo = permisos_roles.filter(
-                (p) => p.permiso.modulo === modulo,
-              );
-
-              return (
-                <CardByModulo
-                  key={modulo}
-                  modulo={modulo}
-                  permisosDelModulo={permisosDelModulo}
-                  permisos_roles={permisos_roles}
                 />
               );
             })}

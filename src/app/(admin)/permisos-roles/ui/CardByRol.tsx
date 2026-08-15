@@ -4,10 +4,9 @@ import {
 } from "@/apis/agroservicio/permisos_rol/interface/response-permisos-roles.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Edit } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import TablePermisosRoles from "./TablePermisosRoles";
 
 interface Props {
   moduloKeys: string[];
@@ -24,15 +23,30 @@ const CardByRol = ({
   permisosByModulo,
   handleEditPermisos,
 }: Props) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalPages = Math.ceil(moduloKeys.length / itemsPerPage);
+
+  const getCurrentModulos = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return moduloKeys.slice(startIndex, endIndex);
+  };
+
+  const currentModulos = getCurrentModulos();
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
   return (
-    <Card className="overflow-hidden border-2 hover:border-primary/20 transition-colors">
-      <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
+    <div className="bg-white rounded-lg border-2 hover:border-primary/20 transition-colors">
+      <div className="bg-gradient-to-r from-gray-50 to-white border-b p-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <CardTitle className="text-xl font-semibold">
-                {rol.name}
-              </CardTitle>
+              <h3 className="text-xl font-semibold">{rol.name}</h3>
               <Badge
                 variant={rol.isActive ? "default" : "secondary"}
                 className="text-xs"
@@ -61,53 +75,93 @@ const CardByRol = ({
             </Button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        {moduloKeys.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">
-            No hay permisos asignados a este rol
+      </div>
+
+      {moduloKeys.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          No hay permisos asignados a este rol
+        </div>
+      ) : (
+        <div className="p-4">
+          <div className="border rounded-lg ">
+            <TablePermisosRoles
+              currentModulos={currentModulos}
+              permisosByModulo={permisosByModulo}
+            />
           </div>
-        ) : (
-          <div className="space-y-4">
-            {moduloKeys.map((modulo, index) => (
-              <div key={modulo} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                    <span className="text-sm uppercase tracking-wider text-gray-500">
-                      {modulo}
-                    </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {permisosByModulo[modulo].length}
-                    </Badge>
-                  </h4>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pl-4">
-                  {permisosByModulo[modulo].map((permiso) => (
-                    <div
-                      key={permiso.id}
-                      className="group flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 transition-all cursor-default border border-transparent hover:border-gray-200"
-                    >
-                      <div className="h-2 w-2 rounded-full bg-green-500 flex-shrink-0" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium truncate">
-                          {permiso.nombre}
-                        </span>
-                        <span className="text-xs text-gray-500 truncate">
-                          {permiso.descripcion}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {index < moduloKeys.length - 1 && (
-                  <Separator className="my-3" />
-                )}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 mt-4 border-t">
+              <div className="text-sm text-gray-500">
+                {currentPage} de {totalPages} páginas
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="h-8"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="sr-only">Anterior</span>
+                </Button>
+                <div className="flex gap-1">
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      Math.abs(pageNum - currentPage) <= 1
+                    ) {
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={
+                            pageNum === currentPage ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => goToPage(pageNum)}
+                          className="h-8 w-8"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    } else if (pageNum === 2 || pageNum === totalPages - 1) {
+                      return (
+                        <span key={pageNum} className="px-1 text-gray-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="h-8"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="sr-only">Siguiente</span>
+                </Button>
+              </div>
+              <div className="text-sm text-gray-500">
+                Mostrando{" "}
+                {Math.min(
+                  itemsPerPage,
+                  moduloKeys.length - (currentPage - 1) * itemsPerPage,
+                )}{" "}
+                de {moduloKeys.length} módulos
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
