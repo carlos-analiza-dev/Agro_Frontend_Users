@@ -45,6 +45,7 @@ import {
   PanelBottom,
   Store,
   UserLock,
+  Ticket,
 } from "lucide-react";
 
 export const navItems = [
@@ -128,6 +129,11 @@ export const navItems = [
         name: "Precios",
         href: "/precios-paquetes",
         icon: DollarSign,
+      },
+      {
+        name: "Códigos de Paquetes",
+        href: "/codigos-paquetes",
+        icon: Ticket,
       },
     ],
   },
